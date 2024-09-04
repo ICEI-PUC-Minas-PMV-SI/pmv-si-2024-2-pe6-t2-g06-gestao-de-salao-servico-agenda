@@ -3,7 +3,6 @@ using AgendamentoService.Repositories;
 using AgendamentoService.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Repositories;
 
 public class Startup
 {
@@ -14,10 +13,11 @@ public class Startup
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
         // Register repositories
-        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
-        services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
-        services.AddScoped<IClientRepository, ClientRepository>();
-        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddScoped(typeof(IEntidadeBaseRepository<>), typeof(IEntidadeBaseRepository<>));
+        services.AddScoped<IProfissionalRepository, IProfissionalRepository>();
+        services.AddScoped<IClienteRepository, IClienteRepository>();
+        services.AddScoped<IAgendamentoRepository, IAgendamentoRepository>();
+        // services.AddScoped<IAgendamentoService, IAgendamentoService>();
 
         // Other service configurations
         services.AddControllers();
