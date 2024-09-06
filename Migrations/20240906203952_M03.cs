@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 {
     /// <inheritdoc />
-    public partial class M00 : Migration
+    public partial class M03 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,8 +17,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DataAgendamento = table.Column<DateOnly>(type: "date", nullable: false),
-                    HoraAgendamento = table.Column<TimeOnly>(type: "time", nullable: false)
+                    DataAgendamento = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HoraAgendamento = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfissionalId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false),
+                    TipoServicoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

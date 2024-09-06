@@ -10,10 +10,21 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
         [Required]
         public int Id { get; set; }
         [Required]
-        public DateOnly DataAgendamento { get; set; }
+        public String DataAgendamento { get; set; }
 
         [Required]
-        public TimeOnly HoraAgendamento { get; set; }
+        public String HoraAgendamento { get; set; }
+
+        // FK
+        [Required]
+        public int ProfissionalId { get; set; }
+
+        [Required]
+        public int UsuarioId { get; set; } // -1
+
+        [Required]
+        public int TipoServicoId { get; set; } // -1
+
 
         // Um agendamento possui somente um usuário e um profissional - relacionamente 1 - 1
         // Relacionamento virtual para agendamentos para carregar informacoes da especializacao associados a esse profissional
