@@ -52,7 +52,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             {
                 if (model.ProfissionalId <= 0 || model.UsuarioId <= 0 || model.TipoServicoId <= 0)
                 {
-                    return BadRequest(new { message = "UsuarioId, ProfissionalId e TipoEspecializacaoId são campos obrigatórios" });
+                    return BadRequest(new { message = "UsuarioId, ProfissionalId e TipoServicoId são campos obrigatórios" });
                 }
 
                 _context.Agendamentos.Add(model);
@@ -72,14 +72,30 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, Agendamento model)
         {
-            if (model.Id != id) return BadRequest();
+            if (id != model.Id) return BadRequest();
 
-            if (await _context.Agendamentos.FirstOrDefaultAsync(c => c.Id == id) == null) return NotFound();
+            var modelo = await _context.Agendamentos.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+            if (modelo == null) return NotFound();
 
             _context.Agendamentos.Update(model);
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // deletar um unico agendamento por meio do id
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var model = await _context.Agendamentos.FindAsync(id);
+
+            if (model == null) return NotFound();
+
+            _context.Agendamentos.Remove(model);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
         }
 
     }
