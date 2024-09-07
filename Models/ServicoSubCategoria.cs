@@ -6,7 +6,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
     public class ServicoSubCategoria
     {
         [Key]
-        [ScaffoldColumn(false)]
+        //[ScaffoldColumn(false)]
         public int Id { get; set; }
 
         [Required]
@@ -15,6 +15,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 
         [Required]
         public TimeSpan Duracao { get; set; }
+
+        [Required]
+        [DisplayFormat(DataFormatString = "{0:N2}")]
+        public decimal Valor { get; set; }
 
         //Relacionamento virtual - FK
         [Required]
