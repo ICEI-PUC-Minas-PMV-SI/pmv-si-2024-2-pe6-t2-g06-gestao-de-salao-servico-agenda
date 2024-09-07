@@ -14,7 +14,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data
         }
 
         // Configuracao dos meus objetos - tabelas (entidades) que vao ser criadas no banco de dados
-        public DbSet<Especializacao> Especializacoes { get; set; }
+        public DbSet<ServicoCategoria> ServicoCategorias { get; set; }
+        public DbSet<ServicoSubCategoria> ServicoSubCategorias { get; set; }
         public DbSet<Profissional> Profissionais { get; set; }
         public DbSet<Agendamento> Agendamentos { get; set; }
 

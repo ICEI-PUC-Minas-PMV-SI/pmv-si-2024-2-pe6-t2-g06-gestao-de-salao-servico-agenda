@@ -50,9 +50,9 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                if (model.ProfissionalId <= 0 || model.UsuarioId <= 0 || model.TipoServicoId <= 0)
+                if (model.ProfissionalId <= 0 || model.UsuarioId <= 0 || model.ServicoSubCategoriaId <= 0)
                 {
-                    return BadRequest(new { message = "UsuarioId, ProfissionalId e TipoServicoId são campos obrigatórios" });
+                    return BadRequest(new { message = "UsuarioId, ProfissionalId e ServicoSubCategoriaId são campos obrigatórios" });
                 }
 
                 _context.Agendamentos.Add(model);
@@ -62,7 +62,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             }
             catch (Exception ex)
             {
-                // Log erro (opcional)
                 return StatusCode(500, new { message = "Ocorreu um erro ao processar a solicitação.", details = ex.Message });
             }
 

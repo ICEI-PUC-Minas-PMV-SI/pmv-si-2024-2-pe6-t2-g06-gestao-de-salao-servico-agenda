@@ -33,15 +33,15 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
         // um profissional pode ter 1 ou n especializacao - 1-n
         // FK
         [Required]
-        public int EspecializacaoId { get; set; }
+        public int ServicoCategoriaId { get; set; }
 
         // Relacionamento virtual para profissional para carregar informacoes da especializacao associados a esse profissional
-        public Especializacao Especializacao { get; set; }// -1
+        public ServicoCategoria ServicoCategoria { get; set; }// -1
 
         // um profissional possui varios agendamentos - 1-n
         // FK
         [Required]
-        public int AgendamentoId { get; set; } // -1
+        //public int AgendamentoId { get; set; } // -1
 
         // Relacionamento virtual para profissional para carregar informacoes do agendamento associados a esse profissional
         public Agendamento Agendamento { get; set; }
