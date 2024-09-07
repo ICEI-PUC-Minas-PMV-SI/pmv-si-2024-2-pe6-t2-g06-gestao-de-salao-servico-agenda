@@ -32,7 +32,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                var model = await _context.Agendamentos.ToListAsync();
+                var model = await _context.Agendamentos
+                    .Include(t => t.Usuario)
+                    .Include(t => t.Profissional)
+                    .Include(t => t.ServicoCategoria)
+                    .Include(t => t.ServicoSubCategoria)
+                    .ToListAsync();
+                
                 return Ok(model);
             }
             catch (Exception ex)
@@ -48,7 +54,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {
-            var model = await _context.Agendamentos.FirstOrDefaultAsync(c => c.Id == id);
+            var model = await _context.Agendamentos
+                .Include(t => t.Usuario)
+                .Include(t => t.Profissional)
+                .Include(t => t.ServicoCategoria)
+                .Include(t => t.ServicoSubCategoria)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if(model == null) return NotFound();
             return Ok(model);
