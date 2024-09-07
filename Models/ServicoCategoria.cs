@@ -1,25 +1,23 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 {
+    [Table("ServicoCategorias")]
     public class ServicoCategoria
     {
         [Key]
         [ScaffoldColumn(false)]
         public int Id { get; set; }
+
         [Required]
-        public string Categoria { get; set; }
+        [MaxLength(100)]
+        public string Nome { get; set; }
 
-        // Relacionamento virtual para agendamentos para carregar informacoes do profissional associados a essa especializacao
-
-        //[Column(TypeName="decimal(18,2)")] -- exemplo de configuracao de decimais
-        //FK
-        [Required]
-        public int ServicoSubCategoriaId { get; set; } // -1
-
-        // Relacionamento virtual para profissional para carregar informacoes do agendamento associados a esse profissional
-        public ServicoSubCategoria SubCategoria { get; set; }
+        // Relacionamento com subcategorias e agendamentos
+        public ICollection<ServicoSubCategoria> ServicoSubCategorias { get; set; }
+        public ICollection<Agendamento> Agendamentos { get; set; }
 
     }
 }

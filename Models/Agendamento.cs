@@ -1,41 +1,57 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 {
+    [Table("Agendamento")]
     public class Agendamento
     {
         [Key]
-        [ScaffoldColumn(false)]
         [Required]
         public int Id { get; set; }
-        [Required]
-        public String DataAgendamento { get; set; }
 
         [Required]
-        public String HoraAgendamento { get; set; }
-
-        // FK
-        [Required]
-        public int ProfissionalId { get; set; } // -1
+        [DataType(DataType.Date)]
+        public DateTime DataAgendamento { get; set; }
 
         [Required]
-        public int UsuarioId { get; set; } // -1
+        [DataType(DataType.Time)]
+        public TimeSpan HoraAgendamento { get; set; }
 
+        // Status do agendamento (Pendente, Confirmado, Concluído, Cancelado)
         [Required]
-        public int ServicoSubCategoriaId { get; set; } // -1
+        public string Status { get; set; } = "Pendente";
 
+        [MaxLength(500)]
+        public string? Observacoes { get; set; }
+
+        // FK para Usuario
         [Required]
-        public Boolean AgendamentoAtivo { get; set; }
+        public int UsuarioId { get; set; }
 
-        public string? DataCancelamento { get; set; }
+        [ForeignKey("UsuarioId")]
+        public Usuario Usuario { get; set; }
 
+        // FK para Profissional
+        [Required]
+        public int ProfissionalId { get; set; }
 
-        // Um agendamento possui somente um usuário e um profissional - relacionamente 1 - 1
-        // Relacionamento virtual para agendamentos para carregar informacoes da especializacao associados a esse profissional
-        
-        // if I want to return all professionals related to this schedule : optional
-        // public ICollection<Profissional> Profissionais { get; set; } //-n
+        [ForeignKey("ProfissionalId")]
+        public Profissional Profissional { get; set; }
 
+        // FK para ServicoCategoria
+        [Required]
+        public int ServicoCategoriaId { get; set; }
+
+        [ForeignKey("ServicoCategoriaId")]
+        public ServicoCategoria ServicoCategoria { get; set; }
+
+        // FK para ServicoSubCategoria
+        [Required]
+        public int ServicoSubCategoriaId { get; set; }
+
+        [ForeignKey("ServicoSubCategoriaId")]
+        public ServicoSubCategoria ServicoSubCategoria { get; set; }
     }
 }

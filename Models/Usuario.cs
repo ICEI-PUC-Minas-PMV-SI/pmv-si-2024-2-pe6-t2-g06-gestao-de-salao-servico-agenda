@@ -23,38 +23,49 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
     [Table("Usuario")]
     public class Usuario
     {
-     
+
         [Key]
         [ScaffoldColumn(false)]
         public int Id { get; set; }
+
         [Required]
+        [MaxLength(100)]
         public string Nome { get; set; }
+
         [Required]
-        [DisplayName("Data de Nascimento")]
-        [Range(0, 10, ErrorMessage = "Data De Nacimento deve conter apenas 10 digitos incluindo traços")]
-        [StringLength(10)]
-        public DateOnly DataNascimento { get; set; }        
+        [EmailAddress]
+        public string Email { get; set; }
+
         [Required]
-        [DisplayName("Gênero")]
-        public GeneroTipo Genero { get; set; }
-        [Required]
+        [Phone]
         public string Telefone { get; set; }
+        
         [Required]
-        [DisplayName("Endereço")]
+        [MaxLength(200)]
         public string Endereco { get; set; }
+
         [Required]
+        [MaxLength(200)]
         public string Cidade { get; set; }
+
         [Required]
+        [MaxLength(200)]
         public string Estado { get; set; }
-        [Required]
-        public string Cep { get; set; }
 
+        [Required]
+        [MaxLength(200)]
+        public string? Cep { get; set; }
+
+        // Outros detalhes, como data de nascimento, podem ser adicionados conforme necessário        
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime? DataNascimento { get; set; }
+
+        [Required]
+        public GeneroTipo? Genero { get; set; }
+        
         // Um usuario possui varios agendamentos - relacionamento 1 - n
-        [Required]
-        //public int AgendamentoId { get; set; } // -1
-
-        // Relacionamento virtual para profissional para carregar informacoes do agendamento associados a esse profissional
-        public Agendamento Agendamento { get; set; }
+        public ICollection<Agendamento> Agendamentos { get; set; } //-n
 
     }
 

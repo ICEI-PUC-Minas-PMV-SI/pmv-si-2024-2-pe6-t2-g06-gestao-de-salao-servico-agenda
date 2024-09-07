@@ -30,8 +30,18 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
-            var model = await _context.Agendamentos.ToListAsync();
-            return Ok(model);
+            try
+            {
+                var model = await _context.Agendamentos.ToListAsync();
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                // Log do erro (se tiver um sistema de log)
+                // Log.Error(ex, "Erro ao obter agendamentos");
+
+                return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
+            }
         }
 
         // retornar um unico agendamento por meio do id
@@ -50,21 +60,33 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                if (model.ProfissionalId <= 0 || model.UsuarioId <= 0 || model.ServicoSubCategoriaId <= 0)
+                // Validate the required fields
+                if (model.ProfissionalId <= 0 || model.UsuarioId <= 0)
                 {
                     return BadRequest(new { message = "UsuarioId, ProfissionalId e ServicoSubCategoriaId são campos obrigatórios" });
                 }
 
+                // Add the new model to the context and save it
                 _context.Agendamentos.Add(model);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetById", new {id = model.Id}, model);
+                // Return the created status with the newly created resource's ID
+                return CreatedAtAction("GetById", new { id = model.Id }, model);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Ocorreu um erro ao processar a solicitação.", details = ex.Message });
-            }
+                // Capture both the main exception and inner exception, if any
+                var exceptionMessage = ex.Message;
+                var innerExceptionMessage = ex.InnerException?.Message;
 
+                // Return a 500 error code with detailed exception messages
+                return StatusCode(500, new
+                {
+                    message = "Ocorreu um erro ao processar a solicitação.",
+                    details = exceptionMessage,
+                    innerDetails = innerExceptionMessage
+                });
+            }
         }
 
         // atualizar um agendamento pelo id
