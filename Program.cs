@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
+using System.Text.Json.Serialization;
+
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
 {
@@ -13,7 +15,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles
+                //options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+            );
 
             // Configuracoes do banco de dados --
             builder.Services.AddDbContext<ApplicationDbContext>(options => //options configura tudo abaixo = injecao = DbContext
@@ -37,7 +42,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

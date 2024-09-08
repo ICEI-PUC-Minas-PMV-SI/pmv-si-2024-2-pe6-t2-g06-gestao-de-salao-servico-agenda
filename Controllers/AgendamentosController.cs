@@ -62,6 +62,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if(model == null) return NotFound();
+            GerarLinks(model);
             return Ok(model);
         }
 
@@ -130,5 +131,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
 
         }
 
+        // passando as rotas para cada verbo
+        private void GerarLinks(Agendamento model)
+        {
+            model.Links.Add(new LinkDto(model.Id, Url.ActionLink(), rel: "self", metodo: "GET"));
+            model.Links.Add(new LinkDto(model.Id, Url.ActionLink(), rel: "update", metodo: "PUT"));
+            model.Links.Add(new LinkDto(model.Id, Url.ActionLink(), rel: "delete", metodo: "DELETE"));
+
+        }
     }
 }

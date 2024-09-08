@@ -4,11 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 {
-    [Table("Agendamento")]
-    public class Agendamento
+    [Table("Agendamentos")]
+    public class Agendamento : LinksHATEOS
+
     {
         [Key]
         [Required]
+        [ScaffoldColumn(false)]
         public int Id { get; set; }
 
         [Required]

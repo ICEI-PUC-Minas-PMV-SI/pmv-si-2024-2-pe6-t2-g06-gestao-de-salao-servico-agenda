@@ -47,6 +47,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data
                 .WithMany(ssc => ssc.Agendamentos)
                 .HasForeignKey(a => a.ServicoSubCategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Configuração de precisão para a propriedade decimal "Valor" em ServicoSubCategoria
+            modelBuilder.Entity<ServicoSubCategoria>()
+                .Property(ssc => ssc.Valor)
+                .HasPrecision(18, 2);
         }
     }
 }

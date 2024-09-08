@@ -20,12 +20,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
     // ------------
 
     // Fixa o nome da tabela a ser criada no banco de dados
-    [Table("Usuario")]
+    [Table("Usuarios")]
     public class Usuario
     {
 
         [Key]
-        //[ScaffoldColumn(false)]
+        [ScaffoldColumn(false)]
         public int Id { get; set; }
 
         [Required]
@@ -63,9 +63,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 
         [Required]
         public GeneroTipo? Genero { get; set; }
-        
+
         // Um usuario possui varios agendamentos - relacionamento 1 - n
         public ICollection<Agendamento> Agendamentos { get; set; } //-n
+        // Propriedade para demonstrar uma coleção de agendamentos
+        //public ICollection<Agendamento> Agendamentos { get; set; } = new List<Agendamento>();
 
     }
 

@@ -12,8 +12,8 @@ using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240907174800_AjusteRelacionamentosAgendamento")]
-    partial class AjusteRelacionamentosAgendamento
+    [Migration("20240907192438_M10")]
+    partial class M10
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,9 +35,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 
                     b.Property<DateTime>("DataAgendamento")
                         .HasColumnType("datetime2");
-
-                    b.Property<TimeSpan>("Duracao")
-                        .HasColumnType("time");
 
                     b.Property<TimeSpan>("HoraAgendamento")
                         .HasColumnType("time");
@@ -91,9 +88,9 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("DataNascimento")
+                    b.Property<DateTime>("DataNascimento")
                         .HasMaxLength(10)
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Endereco")
                         .IsRequired()
@@ -151,6 +148,9 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<TimeSpan>("Duracao")
+                        .HasColumnType("time");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -158,6 +158,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 
                     b.Property<int>("ServicoCategoriaId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
