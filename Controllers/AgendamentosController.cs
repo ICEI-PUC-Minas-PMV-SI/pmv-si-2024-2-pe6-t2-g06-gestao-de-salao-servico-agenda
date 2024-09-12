@@ -33,8 +33,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             try
             {
                 var model = await _context.Agendamentos
-                    .Include(t => t.Usuario)
-                    .Include(t => t.Profissional)
+                    .Include(t => t.Usuarios)
                     .Include(t => t.ServicoCategoria)
                     .Include(t => t.ServicoSubCategoria)
                     .ToListAsync();
@@ -55,8 +54,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         public async Task<ActionResult> GetById(int id)
         {
             var model = await _context.Agendamentos
-                .Include(t => t.Usuario)
-                .Include(t => t.Profissional)
+                .Include(t => t.Usuarios)
                 .Include(t => t.ServicoCategoria)
                 .Include(t => t.ServicoSubCategoria)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -73,10 +71,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             try
             {
                 // Validate the required fields
-                if (model.ProfissionalId <= 0 || model.UsuarioId <= 0)
-                {
-                    return BadRequest(new { message = "UsuarioId, ProfissionalId e ServicoSubCategoriaId são campos obrigatórios" });
-                }
+                //if (model.Id <= 0)
+                //{
+                //    return BadRequest(new { message = "Agendamento obrigatórios" });
+                //}
 
                 // Add the new model to the context and save it
                 _context.Agendamentos.Add(model);

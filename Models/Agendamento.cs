@@ -28,20 +28,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
         [MaxLength(500)]
         public string? Observacoes { get; set; }
 
-        // FK para Usuario
-        [Required]
-        public int UsuarioId { get; set; }
-
-        [ForeignKey("UsuarioId")]
-        public Usuario Usuario { get; set; }
-
-        // FK para Profissional
-        [Required]
-        public int ProfissionalId { get; set; }
-
-        [ForeignKey("ProfissionalId")]
-        public Profissional Profissional { get; set; }
-
         // FK para ServicoCategoria
         [Required]
         public int ServicoCategoriaId { get; set; }
@@ -55,5 +41,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 
         [ForeignKey("ServicoSubCategoriaId")]
         public ServicoSubCategoria ServicoSubCategoria { get; set; }
+        public ICollection<AgendamentoUsuarios> Usuarios { get; set; }
     }
 }

@@ -63,11 +63,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 
         [Required]
         public GeneroTipo? Genero { get; set; }
+        [Required]
+        public int Perfil { get; set; }
 
         // Um usuario possui varios agendamentos - relacionamento 1 - n
-        public ICollection<Agendamento> Agendamentos { get; set; } //-n
-        // Propriedade para demonstrar uma coleção de agendamentos
-        //public ICollection<Agendamento> Agendamentos { get; set; } = new List<Agendamento>();
+        public ICollection<AgendamentoUsuarios> Agendamentos { get; set; }       
 
     }
 
@@ -76,5 +76,14 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
         Masculino, 
         Feminino,
         Outro
+    }
+    public enum Perfil
+    {
+        [Display(Name ="Usuario")]
+        Usuario,
+        [Display(Name = "Administrador")]
+        Administrador,
+        [Display(Name = "Profissional")]
+        Profissional
     }
 }

@@ -6,32 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 {
     /// <inheritdoc />
-    public partial class M10 : Migration
+    public partial class M17 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Profissionais",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Telefone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DataNascimento = table.Column<DateTime>(type: "datetime2", maxLength: 10, nullable: false),
-                    Genero = table.Column<int>(type: "int", nullable: false),
-                    Especialidade = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Endereco = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cidade = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Estado = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cep = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Profissionais", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "ServicoCategorias",
                 columns: table => new
@@ -46,7 +25,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Usuario",
+                name: "Usuarios",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -59,11 +38,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     Estado = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Cep = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     DataNascimento = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Genero = table.Column<int>(type: "int", nullable: false)
+                    Genero = table.Column<int>(type: "int", nullable: false),
+                    Perfil = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Usuario", x => x.Id);
+                    table.PrimaryKey("PK_Usuarios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,7 +69,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Agendamento",
+                name: "Agendamentos",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -99,58 +79,101 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Observacoes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     UsuarioId = table.Column<int>(type: "int", nullable: false),
-                    ProfissionalId = table.Column<int>(type: "int", nullable: false),
                     ServicoCategoriaId = table.Column<int>(type: "int", nullable: false),
                     ServicoSubCategoriaId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Agendamento", x => x.Id);
+                    table.PrimaryKey("PK_Agendamentos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Agendamento_Profissionais_ProfissionalId",
-                        column: x => x.ProfissionalId,
-                        principalTable: "Profissionais",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Agendamento_ServicoCategorias_ServicoCategoriaId",
+                        name: "FK_Agendamentos_ServicoCategorias_ServicoCategoriaId",
                         column: x => x.ServicoCategoriaId,
                         principalTable: "ServicoCategorias",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Agendamento_ServicoSubCategorias_ServicoSubCategoriaId",
+                        name: "FK_Agendamentos_ServicoSubCategorias_ServicoSubCategoriaId",
                         column: x => x.ServicoSubCategoriaId,
                         principalTable: "ServicoSubCategorias",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Agendamento_Usuario_UsuarioId",
+                        name: "FK_Agendamentos_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalTable: "Usuario",
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AgendamentoUsuarios",
+                columns: table => new
+                {
+                    AgendamentoId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AgendamentoUsuarios", x => new { x.AgendamentoId, x.UsuarioId });
+                    table.ForeignKey(
+                        name: "FK_AgendamentoUsuarios_Agendamentos_AgendamentoId",
+                        column: x => x.AgendamentoId,
+                        principalTable: "Agendamentos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AgendamentoUsuarios_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Agendamento_ProfissionalId",
-                table: "Agendamento",
-                column: "ProfissionalId");
+            migrationBuilder.CreateTable(
+                name: "LinkDto",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Href = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Rel = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Metodo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AgendamentoId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LinkDto", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LinkDto_Agendamentos_AgendamentoId",
+                        column: x => x.AgendamentoId,
+                        principalTable: "Agendamentos",
+                        principalColumn: "Id");
+                });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Agendamento_ServicoCategoriaId",
-                table: "Agendamento",
+                name: "IX_Agendamentos_ServicoCategoriaId",
+                table: "Agendamentos",
                 column: "ServicoCategoriaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Agendamento_ServicoSubCategoriaId",
-                table: "Agendamento",
+                name: "IX_Agendamentos_ServicoSubCategoriaId",
+                table: "Agendamentos",
                 column: "ServicoSubCategoriaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Agendamento_UsuarioId",
-                table: "Agendamento",
+                name: "IX_Agendamentos_UsuarioId",
+                table: "Agendamentos",
                 column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AgendamentoUsuarios_UsuarioId",
+                table: "AgendamentoUsuarios",
+                column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LinkDto_AgendamentoId",
+                table: "LinkDto",
+                column: "AgendamentoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServicoSubCategorias_ServicoCategoriaId",
@@ -162,16 +185,19 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Agendamento");
+                name: "AgendamentoUsuarios");
 
             migrationBuilder.DropTable(
-                name: "Profissionais");
+                name: "LinkDto");
+
+            migrationBuilder.DropTable(
+                name: "Agendamentos");
 
             migrationBuilder.DropTable(
                 name: "ServicoSubCategorias");
 
             migrationBuilder.DropTable(
-                name: "Usuario");
+                name: "Usuarios");
 
             migrationBuilder.DropTable(
                 name: "ServicoCategorias");
