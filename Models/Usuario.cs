@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 {
@@ -37,6 +38,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
         public string Email { get; set; }
 
         [Required]
+        [JsonIgnore]
+        public string Senha { get; set; }
+
+        [Required]
         [Phone]
         public string Telefone { get; set; }
         
@@ -64,7 +69,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
         [Required]
         public GeneroTipo? Genero { get; set; }
         [Required]
-        public int Perfil { get; set; }
+        public Perfil Perfil { get; set; }
 
         // Um usuario possui varios agendamentos - relacionamento 1 - n
         public ICollection<AgendamentoUsuarios> Agendamentos { get; set; }       
