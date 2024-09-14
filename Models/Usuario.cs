@@ -72,7 +72,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
         public Perfil Perfil { get; set; }
 
         // Um usuario possui varios agendamentos - relacionamento 1 - n
-        public ICollection<AgendamentoUsuarios> Agendamentos { get; set; }       
+        //public ICollection<AgendamentoUsuarios> Agendamentos { get; set; }
+        public ICollection<Agendamento> Agendamentos { get; set; }
 
     }
 

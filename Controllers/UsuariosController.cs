@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BCrypt.Net;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.ConstrainedExecution;
+using System.Security.Claims;
+using System.Text;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
 {
@@ -12,10 +18,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
 
-        public UsuariosController(ApplicationDbContext context)
+        // Construtor onde o IConfiguration e o ApplicationDbContext são injetados
+        public UsuariosController(IConfiguration configuration, ApplicationDbContext context)
         {
+            _configuration = configuration;
             _context = context;
         }
 
@@ -58,7 +67,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 DataNascimento = usuario.DataNascimento,
                 Genero = usuario.Genero,
                 Perfil = usuario.Perfil
-            };            
+            };
 
             // passar a camada de dto
             _context.Usuarios.Add(novoUsuario);
@@ -129,5 +138,42 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             return _context.Usuarios.Any(e => e.Id == id);
         }
+
+        [AllowAnonymous]
+        [HttpPost("authentication")]
+        public async Task<ActionResult> Authenticate(AuthenticateDto model)
+        {
+            var modelUsuarioDb = await _context.Usuarios.FindAsync(model.UsuarioId);
+
+            if (modelUsuarioDb == null || !BCrypt.Net.BCrypt.Verify(model.Senha, modelUsuarioDb.Senha))
+                return Unauthorized();
+
+            var jwt = GenerateJwtToken(modelUsuarioDb);
+
+            return Ok(new { jwtToken = jwt });
+        }
+
+        private string GenerateJwtToken(Usuario model)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]); // Usando _configuration corretamente
+
+            var claims = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, model.Id.ToString()),
+                new Claim(ClaimTypes.Role, model.Perfil.ToString())
+            });
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = claims,
+                Expires = DateTime.UtcNow.AddHours(8),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
     }
 }

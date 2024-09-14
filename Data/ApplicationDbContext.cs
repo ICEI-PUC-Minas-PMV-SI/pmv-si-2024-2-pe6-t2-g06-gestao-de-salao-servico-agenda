@@ -17,19 +17,19 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuração de Agendamento
-            modelBuilder.Entity<AgendamentoUsuarios>()
-                .HasKey(a => new { a.AgendamentoId, a.UsuarioId });
+            //// Configuração de Agendamento
+            //modelBuilder.Entity<AgendamentoUsuarios>()
+            //    .HasKey(a => new { a.AgendamentoId, a.UsuarioId });
 
-            modelBuilder.Entity<AgendamentoUsuarios>()
-                .HasOne(a => a.Agendamento).WithMany(a => a.Usuarios)
-                .HasForeignKey(a => a.AgendamentoId)
-                .OnDelete(DeleteBehavior.Restrict); ;
+            //modelBuilder.Entity<AgendamentoUsuarios>()
+            //    .HasOne(a => a.Agendamento).WithMany(a => a.Usuarios)
+            //    .HasForeignKey(a => a.AgendamentoId)
+            //    .OnDelete(DeleteBehavior.Restrict); ;
 
-            modelBuilder.Entity<AgendamentoUsuarios>()
-                .HasOne(a => a.Usuario).WithMany(a => a.Agendamentos)
-                .HasForeignKey(a => a.UsuarioId)
-                .OnDelete(DeleteBehavior.Restrict); ;
+            //modelBuilder.Entity<AgendamentoUsuarios>()
+            //    .HasOne(a => a.Usuario).WithMany(a => a.Agendamentos)
+            //    .HasForeignKey(a => a.UsuarioId)
+            //    .OnDelete(DeleteBehavior.Restrict); ;
 
             // Configuração de Agendamento
             modelBuilder.Entity<Agendamento>()
@@ -55,7 +55,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<ServicoCategoria> ServicoCategorias { get; set; }
         public DbSet<ServicoSubCategoria> ServicoSubCategorias { get; set; }
-        public DbSet<AgendamentoUsuarios> AgendamentoUsuarios { get; set; }
+        //public DbSet<AgendamentoUsuarios> AgendamentoUsuarios { get; set; }
 
     }
 }

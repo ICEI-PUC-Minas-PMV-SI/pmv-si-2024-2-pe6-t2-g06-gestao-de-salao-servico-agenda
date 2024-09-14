@@ -1,6 +1,9 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
+using System.Text;
 using System.Text.Json.Serialization;
 
 
@@ -19,6 +22,33 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles
                 //options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
             );
+
+            // Configuracoes do serviço de Authenticação
+            // para utilizar uma rota, o usuario deve estar autenticado:
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                // Adding JWT Bearer
+                .AddJwtBearer(options =>
+                {
+                    options.SaveToken = true;
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true
+                    };
+                });
+
+
 
             // Configuracoes do banco de dados --
             builder.Services.AddDbContext<ApplicationDbContext>(options => //options configura tudo abaixo = injecao = DbContext
@@ -41,6 +71,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.MapControllers();
@@ -60,4 +92,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
         // Remove-Migration -- remove os arquivos de migracao
         // update-database - comando para criar a tabela no banco
     // Criar o controller para definicao do endpoint
+    // Caso queira ignorar campos do modelo no json, criar Data Transfer Objects (dto)
+    // Caso precise de uma tabela de relacionamentos n-n, configurar um modelo especifico somente para chaves
+    // Configurar o project.cs para authenticacao >> devo tambem nos controladores explicitamente falar que a rota tem que ser "Authorize"
 }

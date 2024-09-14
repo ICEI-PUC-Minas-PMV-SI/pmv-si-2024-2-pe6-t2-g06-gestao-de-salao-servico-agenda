@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AgendamentosController : ControllerBase
@@ -33,7 +35,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             try
             {
                 var model = await _context.Agendamentos
-                    .Include(t => t.Usuarios)
+                    .Include(t => t.Usuario)//.ThenInclude(t => t.Usuario)
                     .Include(t => t.ServicoCategoria)
                     .Include(t => t.ServicoSubCategoria)
                     .ToListAsync();
@@ -54,7 +56,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         public async Task<ActionResult> GetById(int id)
         {
             var model = await _context.Agendamentos
-                .Include(t => t.Usuarios)
+                .Include(t => t.Usuario)//.ThenInclude(t => t.Usuario)
                 .Include(t => t.ServicoCategoria)
                 .Include(t => t.ServicoSubCategoria)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -70,12 +72,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Validate the required fields
-                //if (model.Id <= 0)
-                //{
-                //    return BadRequest(new { message = "Agendamento obrigatórios" });
-                //}
-
                 // Add the new model to the context and save it
                 _context.Agendamentos.Add(model);
                 await _context.SaveChangesAsync();
@@ -137,5 +133,47 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             model.Links.Add(new LinkDto(model.Id, Url.ActionLink(), rel: "delete", metodo: "DELETE"));
 
         }
+
+        //// Metodo: Operacao para salvar o usuario que esta linkado ao agendamento na tabela n-n
+        //// associacao do usuario no agendamento
+        //[HttpPost("{id}/usuarios")]
+        //public async Task<ActionResult> AddUsuario(int id, AgendamentoUsuariosDto model)
+        //{
+
+
+        //    // passar o usuario dto ao inves do usuario. essa configuracao garante que a senha tambem sera passada
+        //    AgendamentoUsuarios novoAgendamento = new AgendamentoUsuarios()
+        //    {
+        //        AgendamentoId = model.AgendamentoId,
+        //        Agendamento = model.Agendamento,
+        //        UsuarioId = model.UsuarioId,
+        //        Usuario = model.Usuario
+        //    };
+
+        //    if (novoAgendamento == null || id != novoAgendamento.UsuarioId) return BadRequest(ModelState);
+        //    // passar a camada de dto
+
+        //    _context.AgendamentoUsuarios.Add(novoAgendamento);
+        //    await _context.SaveChangesAsync();
+        //    return CreatedAtAction("GetById", new { id = novoAgendamento.UsuarioId}, novoAgendamento);
+        //}
+
+        //[HttpDelete("{id}/usuarios")]
+        //public async Task<ActionResult> DeleteUsuario(int agendamentoId, int usuarioId)
+        //{
+        //    var model = await _context.AgendamentoUsuarios
+        //        .Where(c => c.AgendamentoId == agendamentoId && c.UsuarioId == usuarioId)
+        //        .FirstOrDefaultAsync();
+
+        //    if (model == null) return NotFound();
+
+        //    _context.AgendamentoUsuarios.Remove(model);
+        //    await _context.SaveChangesAsync();
+
+        //    return NoContent();
+        //}
+
+
+        
     }
 }

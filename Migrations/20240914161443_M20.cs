@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 {
     /// <inheritdoc />
-    public partial class M17 : Migration
+    public partial class M20 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,6 +32,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Senha = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Telefone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Endereco = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Cidade = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
@@ -78,9 +79,9 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     HoraAgendamento = table.Column<TimeSpan>(type: "time", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Observacoes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    UsuarioId = table.Column<int>(type: "int", nullable: false),
                     ServicoCategoriaId = table.Column<int>(type: "int", nullable: false),
-                    ServicoSubCategoriaId = table.Column<int>(type: "int", nullable: false)
+                    ServicoSubCategoriaId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -96,37 +97,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                         column: x => x.ServicoSubCategoriaId,
                         principalTable: "ServicoSubCategorias",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Agendamentos_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AgendamentoUsuarios",
-                columns: table => new
-                {
-                    AgendamentoId = table.Column<int>(type: "int", nullable: false),
-                    UsuarioId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AgendamentoUsuarios", x => new { x.AgendamentoId, x.UsuarioId });
-                    table.ForeignKey(
-                        name: "FK_AgendamentoUsuarios_Agendamentos_AgendamentoId",
-                        column: x => x.AgendamentoId,
-                        principalTable: "Agendamentos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AgendamentoUsuarios_Usuarios_UsuarioId",
-                        column: x => x.UsuarioId,
-                        principalTable: "Usuarios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -166,11 +143,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                 column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AgendamentoUsuarios_UsuarioId",
-                table: "AgendamentoUsuarios",
-                column: "UsuarioId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_LinkDto_AgendamentoId",
                 table: "LinkDto",
                 column: "AgendamentoId");
@@ -184,9 +156,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AgendamentoUsuarios");
-
             migrationBuilder.DropTable(
                 name: "LinkDto");
 
