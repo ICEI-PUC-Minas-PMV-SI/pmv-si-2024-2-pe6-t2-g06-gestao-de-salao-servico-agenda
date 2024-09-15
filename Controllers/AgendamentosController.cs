@@ -30,6 +30,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
 
         // retornar todos os agendamentos - GET
         [HttpGet]
+        [Authorize]
+        [Authorize(Roles = "3")]
         public async Task<ActionResult> GetAll()
         {
             try
@@ -52,6 +54,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         }
 
         // retornar um unico agendamento por meio do id
+        [Authorize(Roles = "1,2,3")]
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {

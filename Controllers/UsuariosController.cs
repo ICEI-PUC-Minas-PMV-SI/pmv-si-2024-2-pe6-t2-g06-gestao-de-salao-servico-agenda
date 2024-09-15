@@ -168,6 +168,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             {
                 Subject = claims,
                 Expires = DateTime.UtcNow.AddHours(8),
+                // Usando _configuration para obter o Audience
+                //Audience = _configuration["Jwt:Audience"], // Defina o público do token aqui
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
