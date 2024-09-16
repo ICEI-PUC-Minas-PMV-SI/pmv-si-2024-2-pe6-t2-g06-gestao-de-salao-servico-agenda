@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -48,15 +50,15 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
                     };
                 });
 
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAll", builder =>
+            builder.Services.AddCors(options =>
             {
-                builder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
+                options.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                });
             });
-        });
 
 
 
@@ -68,10 +70,19 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
  
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Microservico-API-Agendamentos", Version = "v1" });
+
+                // Include XML comments
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
 
             var app = builder.Build();
 
+            // Configure the HTTP request pipeline.
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -90,6 +101,9 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
             app.Run();
         }
     }
+
+
+
 
 
     // passos: 

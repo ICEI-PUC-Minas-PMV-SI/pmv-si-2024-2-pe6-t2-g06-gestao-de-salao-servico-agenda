@@ -8,6 +8,8 @@
     <UserSecretsId>4ccf91c6-a199-4357-8df8-525a0693228b</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>C:\pmv-si-2024-2-pe6-t2-g06-gestao-de-salao-servico-agenda\bin\Debug\net8.0\pmv-si-2024-2-pe6-t2-g06-gestao-de-salao-servico-agenda.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
