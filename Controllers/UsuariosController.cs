@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.DTOs;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;

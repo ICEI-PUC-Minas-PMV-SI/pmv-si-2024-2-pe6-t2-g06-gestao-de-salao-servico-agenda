@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models;
 
-namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
+namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.DTOs
 {
     public class UsuarioDto
     {
@@ -36,7 +37,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models
 
         [Required]
         [MaxLength(200)]
-        public string? Cep { get; set; }
+        public string Cep { get; set; }
 
         // Outros detalhes, como data de nascimento, podem ser adicionados conforme necessário        
         [Required]
