@@ -1,0 +1,55 @@
+### Get all users
+GET https://localhost:7092/api/Usuarios
+Accept: application/json
+
+### Get user by ID
+GET https://localhost:7092/api/Usuarios/10
+Accept: application/json
+
+### Create a new user
+POST https://localhost:7092/api/Usuarios
+Content-Type: application/json
+{
+    "nome": "John Doe",
+    "email": "john.doe@example.com",
+    "senha": "password123",
+    "telefone": "123",
+    "endereco": "123 Main St",
+    "cidade": "Metropolis",
+    "estado": "NY",
+    "cep": "12345-678",
+    "dataNascimento": "1990-01-01",
+    "genero": 0,
+    "perfil": 2
+}
+
+### Update user by ID
+PUT https://localhost:7092/api/Usuarios/15
+Content-Type: application/json
+
+{
+    "id": 15,
+    "nome": "John Doe Updated",
+    "email": "john.doe.updated@example.com",
+    "senha": "123",
+    "telefone": "987654321",
+    "endereco": "456 Elm St",
+    "cidade": "Metropolis",
+    "estado": "NY",
+    "cep": "12345-678",
+    "dataNascimento": "1990-01-01",
+    "genero": 0,
+    "perfil": 1
+}
+
+### Delete user by ID
+DELETE https://localhost:7092/api/Usuarios/1
+
+### User Authentication
+POST https://localhost:7092/api/Usuarios/authentication
+Content-Type: application/json
+
+{
+    "usuarioId": "15",
+    "senha": "123"
+}
