@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities;
 
-namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.DTOs
+namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.DTOs
 {
     public class UsuarioDto
     {

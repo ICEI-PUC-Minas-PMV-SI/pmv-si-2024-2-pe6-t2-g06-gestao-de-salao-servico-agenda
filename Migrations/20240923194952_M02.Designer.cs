@@ -12,8 +12,8 @@ using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240916195813_M22")]
-    partial class M22
+    [Migration("20240923194952_M02")]
+    partial class M02
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,49 +25,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Agendamento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DataAgendamento")
-                        .HasColumnType("datetime2");
-
-                    b.Property<TimeSpan>("HoraAgendamento")
-                        .HasColumnType("time");
-
-                    b.Property<string>("Observacoes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("ServicoCategoriaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ServicoSubCategoriaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServicoCategoriaId");
-
-                    b.HasIndex("ServicoSubCategoriaId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("Agendamentos");
-                });
-
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.LinkDto", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.DTOs.LinkDto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,14 +45,76 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     b.Property<string>("Rel")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ServicoCategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ServicoSubCategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AgendamentoId");
 
+                    b.HasIndex("ServicoCategoriaId");
+
+                    b.HasIndex("ServicoSubCategoriaId");
+
+                    b.HasIndex("UsuarioId");
+
                     b.ToTable("LinkDto");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoCategoria", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Agendamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataAgendamento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("HoraAgendamento")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Observacoes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("ProfissionalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServicoCategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServicoSubCategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfissionalId");
+
+                    b.HasIndex("ServicoCategoriaId");
+
+                    b.HasIndex("ServicoSubCategoriaId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Agendamentos");
+                });
+
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoCategoria", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -112,7 +132,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     b.ToTable("ServicoCategorias");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoSubCategoria", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoSubCategoria", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -142,7 +162,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     b.ToTable("ServicoSubCategorias");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Usuario", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -201,25 +221,52 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Agendamento", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.DTOs.LinkDto", b =>
                 {
-                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoCategoria", "ServicoCategoria")
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Agendamento", null)
+                        .WithMany("Links")
+                        .HasForeignKey("AgendamentoId");
+
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoCategoria", null)
+                        .WithMany("Links")
+                        .HasForeignKey("ServicoCategoriaId");
+
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoSubCategoria", null)
+                        .WithMany("Links")
+                        .HasForeignKey("ServicoSubCategoriaId");
+
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", null)
+                        .WithMany("Links")
+                        .HasForeignKey("UsuarioId");
+                });
+
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Agendamento", b =>
+                {
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", "Profissional")
+                        .WithMany("AgendamentosComoProfissional")
+                        .HasForeignKey("ProfissionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoCategoria", "ServicoCategoria")
                         .WithMany("Agendamentos")
                         .HasForeignKey("ServicoCategoriaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoSubCategoria", "ServicoSubCategoria")
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoSubCategoria", "ServicoSubCategoria")
                         .WithMany("Agendamentos")
                         .HasForeignKey("ServicoSubCategoriaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Usuario", "Usuario")
-                        .WithMany("Agendamentos")
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", "Usuario")
+                        .WithMany("AgendamentosComoCliente")
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Profissional");
 
                     b.Navigation("ServicoCategoria");
 
@@ -228,16 +275,9 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.LinkDto", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoSubCategoria", b =>
                 {
-                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Agendamento", null)
-                        .WithMany("Links")
-                        .HasForeignKey("AgendamentoId");
-                });
-
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoSubCategoria", b =>
-                {
-                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoCategoria", "ServicoCategoria")
+                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoCategoria", "ServicoCategoria")
                         .WithMany("ServicoSubCategorias")
                         .HasForeignKey("ServicoCategoriaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -246,26 +286,34 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     b.Navigation("ServicoCategoria");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Agendamento", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Agendamento", b =>
                 {
                     b.Navigation("Links");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoCategoria", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoCategoria", b =>
                 {
                     b.Navigation("Agendamentos");
+
+                    b.Navigation("Links");
 
                     b.Navigation("ServicoSubCategorias");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.ServicoSubCategoria", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoSubCategoria", b =>
                 {
                     b.Navigation("Agendamentos");
+
+                    b.Navigation("Links");
                 });
 
-            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Usuario", b =>
+            modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", b =>
                 {
-                    b.Navigation("Agendamentos");
+                    b.Navigation("AgendamentosComoCliente");
+
+                    b.Navigation("AgendamentosComoProfissional");
+
+                    b.Navigation("Links");
                 });
 #pragma warning restore 612, 618
         }

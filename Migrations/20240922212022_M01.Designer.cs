@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
 
@@ -11,9 +12,11 @@ using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240922212022_M01")]
+    partial class M01
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,9 +85,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("ProfissionalId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ServicoCategoriaId")
                         .HasColumnType("int");
 
@@ -99,8 +99,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProfissionalId");
 
                     b.HasIndex("ServicoCategoriaId");
 
@@ -239,12 +237,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 
             modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Agendamento", b =>
                 {
-                    b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", "Profissional")
-                        .WithMany("AgendamentosComoProfissional")
-                        .HasForeignKey("ProfissionalId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.ServicoCategoria", "ServicoCategoria")
                         .WithMany("Agendamentos")
                         .HasForeignKey("ServicoCategoriaId")
@@ -258,12 +250,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                         .IsRequired();
 
                     b.HasOne("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", "Usuario")
-                        .WithMany("AgendamentosComoCliente")
+                        .WithMany("Agendamentos")
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Profissional");
 
                     b.Navigation("ServicoCategoria");
 
@@ -306,9 +296,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 
             modelBuilder.Entity("pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities.Usuario", b =>
                 {
-                    b.Navigation("AgendamentosComoCliente");
-
-                    b.Navigation("AgendamentosComoProfissional");
+                    b.Navigation("Agendamentos");
 
                     b.Navigation("Links");
                 });

@@ -4,64 +4,42 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
-using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositories;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.DTOs;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities;
 using System.Security.Claims;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
 {
-    //[Authorize]
-    /// <summary>
-    /// Controller for managing agendamentos (appointments).
-    /// </summary>
+    // AgendamentosController.cs
     [Route("api/[controller]")]
     [ApiController]
     public class AgendamentosController : ControllerBase
     {
-        // primeiro, configurar a variavel que irá acessar o banco
-        private readonly ApplicationDbContext _context;
+        private readonly IAgendamentosRepository _repository;
 
-        //segundo, fazer con que o controler receba / solicite acesso ao banco - abrir connexao
-        /// <summary>
-        /// Inicializa uma nova instância de <see cref="AgendamentosController"/> class.
-        /// </summary>
-        /// <param name="context">O contexto do banco de dados.</param>
-        public AgendamentosController(ApplicationDbContext context)
+        public AgendamentosController(IAgendamentosRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
-
-        // Configuracao das rotas:        
-        // ActionResult ira configurar o formato retornado
-        // async = tempo de resposta assincrona ou tempo de espera
-        // Task = tarefa/thread
-
-
-        // retornar todos os agendamentos - GET
         /// <summary>
         /// Retorna todo os agendamentos do salão.
         /// </summary>
         /// <returns>Uma lista de agendamentos.</returns>
+        /// <remarks> Somente Administradores tem permissao para ver todos os agendamentos.</remarks>
+
         [HttpGet]
-        [Authorize]
-        [Authorize(Roles = "3")]
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult> GetAll()
         {
             try
             {
-                var model = await _context.Agendamentos
-                    .Include(t => t.Usuario)
-                    .Include(t => t.ServicoCategoria)
-                    .Include(t => t.ServicoSubCategoria)
-                    .ToListAsync();
-
-                return Ok(model);
+                var agendamentos = await _repository.GetAllAgendamentosAsync();
+                return Ok(agendamentos);
             }
             catch (Exception ex)
             {
-                // Log the error if you have logging in place
-                // Log.Error(ex, "Erro ao obter agendamentos");
-
                 return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
             }
         }
@@ -72,18 +50,15 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// </summary>
         /// <param name="id">o ID do agendamento.</param>
         /// <returns>O agendamento com o ID específico.</returns>
+        /// <remarks> Somente Administradores e Profissionais tem permissao para ver agendamentos pelo Id, porem, profissionais poderao ver somente seus proprios agendamentos.</remarks>
         [HttpGet("{id}")]
-        [Authorize(Roles = "1,2")]  // Somente Administradores (Role 1) e profissionaos (Role 2) podem acessar esse método
-        public async Task<ActionResult> GetById(int id)
+        [Authorize(Roles = "Administrador,Profissional")]  // Somente Administradores (Role 1) e profissionaos (Role 2) podem acessar esse método
+        public async Task<ActionResult> GetAgendamentoById(int id)
         {
             try
             {
-                // Dá um Fetch o agendamento pelo seu ID
-                var model = await _context.Agendamentos
-                    .Include(t => t.Usuario)
-                    .Include(t => t.ServicoCategoria)
-                    .Include(t => t.ServicoSubCategoria)
-                    .FirstOrDefaultAsync(c => c.Id == id);
+                // Recupera agendamento pelo ID usando o repositorio
+                var model = await _repository.GetAgendamentoByIdAsync(id);
 
                 // Retorna NotFound o agendamento não é encontrado
                 if (model == null)
@@ -94,21 +69,21 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
 
                 // Checa se o usuario atual é um Administrador
-                if (perfilUsuarioAtual == "1") // Role 1: Administrador
+                if (perfilUsuarioAtual == "Administrador") // Role 1: Administrador
                 {
                     // Administradores podem acessar qualquer agendamento
                     GerarLinks(model);
                     return Ok(model);
                 }
-                else if (perfilUsuarioAtual == "2") // Role 2: Profissional
+                else if (perfilUsuarioAtual == "Profissional") // Role 2: Profissional
                 {
                     // Profissionais podem somente acessar agendamentos relacionados ao seu proprio ID
                     var profissionalId = int.Parse(usuarioAtualId);
 
                     // Checa se o profissional pode acessar esse agendamento
-                    if (model.UsuarioId != profissionalId)
+                    if (model.ProfissionalId != profissionalId)
                     {
-                        return Forbid("Você não tem permissão para acessar este agendamento.");
+                        return Forbid("Funcao Invalida.");
                     }
 
                     // Se o ID do profissional da match, returna o agendamento
@@ -117,7 +92,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 }
 
                 // Se o perfil do usuario é inválido, returna Unauthorized
-                return Unauthorized(new { message = "Função de usuário inválida." });
+                return Unauthorized(new { message = "Você não tem permissão para acessar este agendamento." });
             }
             catch (Exception ex)
             {
@@ -133,40 +108,50 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <summary>
         /// Cria um novo agendamento.
         /// </summary>
-        /// <param name="model">Os detalhes do agendamento a ser criado.</param>
+        /// <param name="agendamento">Os detalhes do agendamento a ser criado.</param>
         /// <returns>O agendamento Criado.</returns>
+        /// <remarks> Administradores e Profissionais podem criar agendamentos para outros usuarios, mas um usuario final nao pode criar agendamento para outro usuario, mas somente para o seu proprio login</remarks>
         [HttpPost]
-        [Authorize(Roles = "1,2,3")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
-        public async Task<ActionResult> Create(Agendamento model)
+        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
+        public async Task<ActionResult> CreateAgendamento([FromBody] Agendamento agendamento)
         {
             try
             {
-                // Pega o usuario atual e seu perfil pelo token claims
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                // Get the current user's ID and role from the token claims
                 var usuarioAtualId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
 
-                // Checa se o usuario atual é um usuario (Role 1)
-                if (perfilUsuarioAtual == "1") // Role 1: Usuario
+                // Check if the current user is a regular user (Role 1)
+                if (perfilUsuarioAtual == "Usuario") // Role 1: Usuario
                 {
-                    // Determina que o usuario pode criar agendamento somente para seu proprio ID e perfil
-                    if (model.UsuarioId.ToString() != usuarioAtualId)
+                    // Ensure the user can only create an appointment for their own ID
+                    if (agendamento.UsuarioId.ToString() != usuarioAtualId)
                     {
-                        return Forbid("Você não pode criar agendamentos para outros usuários.");
+                        return new ContentResult
+                        {
+                            StatusCode = 403,
+                            Content = "Você não tem permissao para criar agendamentos para outros usuários."
+                        };
                     }
                 }
 
-                // Se o usuario atual é um Profissional (Role 2) ou Administrador (Role 3),
-                // eles podem criar agendamentos para qualquer usuario, sem restricao
-                // Adiciona um novo agendamento no context e salva no banco
-                _context.Agendamentos.Add(model);
-                await _context.SaveChangesAsync();
+                // If the current user is a Professional (Role 2) or Administrator (Role 3),
+                // they can create appointments for any user, without restriction.
 
-                // Returna o status criado com o mais novo ID de recurso
-                return CreatedAtAction("GetById", new { id = model.Id }, model);
+                // Use the repository to add the new agendamento
+                await _repository.CreateAgendamentoAsync(agendamento);
+
+                // Return status created with the newly created resource ID
+                return CreatedAtAction(nameof(GetAgendamentoById), new { id = agendamento.Id }, agendamento);
             }
             catch (Exception ex)
             {
-                // Captura os detalhes da excecao e returna codigo de erro 500
+                // Capture the details of the exception and return a 500 error
                 var exceptionMessage = ex.Message;
                 var innerExceptionMessage = ex.InnerException?.Message;
 
@@ -185,11 +170,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <param name="id">o ID do agendamento.</param>
         /// <param name="model">A atualização dos detalhes do agendamento.</param>
         /// <returns>Se update foi bem sucedido, não retorna nada.</returns>
+        /// <remarks> Administradores e Profissionais podem atualizar agendamentos para outros usuarios, mas um usuario final nao pode atualizar agendamento para outro usuario, mas somente para o seu proprio login</remarks>
         [HttpPut("{id}")]
-        [Authorize(Roles = "1,2,3")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
-        public async Task<ActionResult> Update(int id, Agendamento model)
+        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
+        public async Task<ActionResult> UpdateAgendamento(int id, Agendamento model)
         {
-            if (id != model.Id) return BadRequest();
+            if (id != model.Id) return BadRequest("O ID do agendamento não corresponde.");
 
             try
             {
@@ -198,13 +184,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
 
                 // Retorna o agendamento atual
-                var agendamentoExistente = await _context.Agendamentos.AsNoTracking()
-                    .FirstOrDefaultAsync(c => c.Id == id);
+                var agendamentoExistente = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
 
-                if (agendamentoExistente == null) return NotFound();
+                if (agendamentoExistente == null) return NotFound(new { message = "Agendamento não encontrado." });
 
                 // Se o usuario atual é um usuario comum (Role 1), checa se eles estao atualizando o seu proprio agendamento
-                if (perfilUsuarioAtual == "1") // Role 1: Usuario
+                if (perfilUsuarioAtual == "Usuario") // Role 1: Usuario
                 {
                     if (agendamentoExistente.UsuarioId.ToString() != usuarioAtualId)
                     {
@@ -213,8 +198,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 }
 
                 // Atualiza o agendamento com novos detalhes
-                _context.Agendamentos.Update(model);
-                await _context.SaveChangesAsync();
+                
+                await _repository.UpdateAgendamentoAsync(model);
 
                 return NoContent();
             }
@@ -230,8 +215,9 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// </summary>
         /// <param name="id">O ID do agendamento.</param>
         /// <returns>Se a ação Delete é bem sucedida, não retorna nada.</returns>
+        /// <remarks> Administradores e Profissionais podem deletar agendamentos para outros usuarios, mas um usuario final nao pode deletar agendamento para outro usuario, mas somente para o seu proprio login</remarks>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "1,2,3")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
+        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -240,13 +226,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 var usuarioAtualId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
 
-                // Encontre o agendamento por ID
-                var model = await _context.Agendamentos.FindAsync(id);
+                // Encontre o agendamento por ID usando o repositório
+                var model = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
 
                 if (model == null) return NotFound();
 
                 // Caso o usuário atual seja um usuário regular (Role 1), ele só poderá excluir seu próprio agendamento
-                if (perfilUsuarioAtual == "1") // Role 1: User
+                if (perfilUsuarioAtual == "Usuario") // Role 1: User
                 {
                     if (model.UsuarioId.ToString() != usuarioAtualId)
                     {
@@ -254,9 +240,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                     }
                 }
 
-                // Remove o agendamento
-                _context.Agendamentos.Remove(model);
-                await _context.SaveChangesAsync();
+                // Remove o agendamento usando o repositório
+                await _repository.DeleteAgendamentoAsync(model);
 
                 return NoContent();
             }
@@ -266,6 +251,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 return StatusCode(500, new { message = "Erro ao deletar o agendamento.", details = ex.Message });
             }
         }
+        
 
         // GET: /api/agendamentos/usuario/{id}
         /// <summary>
@@ -274,8 +260,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <param name="id">O ID do usuario para filtrar agendamentos.</param>
         /// <returns>Uma lista de agendamentos para um usuário específico.</returns>
         [HttpGet("usuario/{id}")]
-        [Authorize("1,2,3")] // Somente usuarios autenticados podem acessar esse methodo
-        public async Task<ActionResult> GetByUsuarioId(int id)
+        [Authorize("Administrador,Profissional,Usuario")] // Somente usuarios autenticados podem acessar esse methodo
+        public async Task<ActionResult> GetAgendamentoByUsuarioId(int id)
         {
             try
             {
@@ -284,12 +270,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
 
                 // Verifica as funções e controle de acesso
-                if (perfilUsuarioAtual == "1") // Administrador (Role 1)
+                if (perfilUsuarioAtual == "Administrador") // Administrador (Role 1)
                 {
                     // Os administradores podem acessar os agendamentos de qualquer usuário, sem necessidade de restrições
 
                 }
-                else if (perfilUsuarioAtual == "2") // Profissional (Role 2)
+                else if (perfilUsuarioAtual == "Profissional") // Profissional (Role 2)
                 {
                     // Profissional só pode acessar agendamentos relacionados ao seu próprio ID (ProfissionalId)
                     var profissionalId = int.Parse(usuarioAtualId);
@@ -300,7 +286,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                         return Forbid("Você não tem permissão para acessar agendamentos de outro profissional.");
                     }
                 }
-                else if (perfilUsuarioAtual == "3") // Usuario (Role 3)
+                else if (perfilUsuarioAtual == "Usuario") // Usuario (Role 3)
                 {
                     // Usuario regular só pode acessar seus próprios agendamentos
                     if (usuarioAtualId != id.ToString())
@@ -314,15 +300,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 }
 
                 // Busca os agendamentos para o ID de usuário informado
-                var agendamentos = await _context.Agendamentos
-                    .Include(a => a.Usuario)
-                    .Include(a => a.ServicoCategoria)
-                    .Include(a => a.ServicoSubCategoria)
-                    .Where(a => a.UsuarioId == id)
-                    .ToListAsync();
+                var agendamentos = await _repository.GetAgendamentosByUsuarioOuProfissionalIdAsync(id);
 
                 // Se nenhum agendamento for encontrado, retorna um resultado NotFound
-                if (agendamentos == null || !agendamentos.Any())
+                if (agendamentos == null || agendamentos.Any()) 
                 {
                     return NotFound(new { message = "Nenhum agendamento encontrado para este usuário." });
                 }
@@ -332,9 +313,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (optional logging)
-                // _logger.LogError(ex, "Error while retrieving agendamentos for user {id}", id);
-
                 // Retorna um erro interno do servidor 500 com os detalhes da exceção
                 return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
             }
@@ -345,19 +323,15 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// </summary>
         /// <param name="id">A identificação profissional para filtrar agendamentos.</param>
         /// <returns>Uma lista de agendamentos para o profissional especificado.</returns>
+        /// <remarks> Administradores podem ver agendamentos de um determinado profissional pelo seu id. Profissionais tambem podem ver somente seus proprios agendamentos</remarks>
         [HttpGet("profissional/{id}")]
-        [Authorize(Roles = "2,3")] // Permitir que profissionais e administradores acessem este endpoint
-        public async Task<ActionResult> GetByProfessionalId(int id)
+        [Authorize(Roles = "Administrador,Profissional")] // Permitir que profissionais e administradores acessem este endpoint
+        public async Task<ActionResult> GetAgendamentoByProfessionalId(int id)
         {
             try
             {
                 // Buscar agendamentos relacionados à carteira profissional especificada
-                var agendamentos = await _context.Agendamentos
-                    .Include(t => t.Usuario) // Inclua detalhes do usuário, se necessário
-                    .Include(t => t.ServicoCategoria)
-                    .Include(t => t.ServicoSubCategoria)
-                    .Where(a => a.UsuarioId == id) // Filtrar por ID profissional
-                    .ToListAsync();
+                var agendamentos = await _repository.GetAgendamentosByUsuarioOuProfissionalIdAsync(id);
 
                 // Verifique se algum agendamento foi encontrado
                 if (agendamentos == null || !agendamentos.Any())
@@ -381,8 +355,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <param name="novoStatus">O novo status a ser aplicado.</param>
         /// <returns>Nenhum conteúdo se a atualização for bem sucedida.</returns>
         [HttpPatch("{id}/status")]
-        [Authorize(Roles = "2,3")] // Permitir que profissionais e administradores atualizem o status
-        public async Task<ActionResult> UpdateStatus(int id, [FromBody] string novoStatus)
+        [Authorize(Roles = "Administrador,Profissional")] // Permitir que profissionais e administradores atualizem o status
+        public async Task<ActionResult> UpdateAgendamentoStatus(int id, [FromBody] string novoStatus)
         {
             try
             {
@@ -393,7 +367,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 }
 
                 // Buscar o agendamento por ID
-                var agendamento = await _context.Agendamentos.FindAsync(id);
+                var agendamento = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
+
                 if (agendamento == null)
                 {
                     return NotFound(new { message = "Agendamento não encontrado." });
@@ -403,8 +378,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 agendamento.Status = novoStatus;
 
                 // Marcar a entidade como modificada
-                _context.Agendamentos.Update(agendamento);
-                await _context.SaveChangesAsync();
+                _repository.UpdateAgendamentoAsync(agendamento);
 
                 return NoContent(); // Retornar 204 Sem conteúdo em atualização bem sucedida
             }
@@ -421,7 +395,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <param name="id">O ID do agendamento.</param>
         /// <returns>Nenhum conteúdo se o cancelamento for bem sucedido.</returns>
         [HttpPatch("{id}/cancelar")]
-        [Authorize(Roles = "1,2,3")] // Permitir que usuários (para seus próprios compromissos), profissionais e administradores cancelem compromissos
+        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permitir que usuários (para seus próprios compromissos), profissionais e administradores cancelem compromissos
         public async Task<ActionResult> CancelAgendamento(int id)
         {
             try
@@ -430,7 +404,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 const string cancellationStatus = "Cancelado"; // Altere para qualquer status que indique cancelamento
 
                 // Busca o agendamento pelo seu ID
-                var agendamento = await _context.Agendamentos.FindAsync(id);
+                var agendamento = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
                 if (agendamento == null)
                 {
                     return NotFound(new { message = "Agendamento não encontrado." });
@@ -451,8 +425,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 agendamento.Status = cancellationStatus;
 
                 // Marcar a entidade como modificada
-                _context.Agendamentos.Update(agendamento);
-                await _context.SaveChangesAsync();
+                _repository.UpdateAgendamentoAsync(agendamento);
 
                 return NoContent(); // Retornar 204 Sem conteúdo em atualização bem-sucedida
             }
@@ -469,18 +442,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <param name="data">A data para filtrar agendamentos.</param>
         /// <returns>Uma lista de agendamentos para a data especificada.</returns>
         [HttpGet("by-date/{data}")]
-        [Authorize(Roles = "2,3")] //Permitir que profissionais e administradores acessem este endpoint
-        public async Task<ActionResult> GetByDate(DateTime data)
+        [Authorize(Roles = "Administrador,Profissional")] //Permitir que profissionais e administradores acessem este endpoint
+        public async Task<ActionResult> GetAgendamentoByDate(DateTime data)
         {
             try
             {
                 // Buscar agendamentos para a data especificada
-                var agendamentos = await _context.Agendamentos
-                    .Include(t => t.Usuario)
-                    .Include(t => t.ServicoCategoria)
-                    .Include(t => t.ServicoSubCategoria)
-                    .Where(a => a.DataAgendamento.Date == data.Date) // Certifique-se de que a comparação de datas seja apenas na data, não na hora
-                    .ToListAsync();
+                var agendamentos = await _repository.GetAgendamentosByDateAsync(data);
 
                 if (!agendamentos.Any())
                 {
@@ -503,18 +471,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <param name="dataFinal">A data de término do intervalo.</param>
         /// <returns>Uma lista de agendamentos dentro do intervalo de datas especificado.</returns>
         [HttpGet("between-dates")]
-        [Authorize(Roles = "2,3")] // Permitir que profissionais e administradores acessem este endpoint
+        [Authorize(Roles = "Administrador,Profissional")] // Permitir que profissionais e administradores acessem este endpoint
         public async Task<ActionResult> GetBetweenDates([FromQuery] DateTime dataInicial, [FromQuery] DateTime dataFinal)
         {
             try
             {
                 // Buscar agendamentos dentro do intervalo de datas especificado
-                var agendamentos = await _context.Agendamentos
-                    .Include(t => t.Usuario)
-                    .Include(t => t.ServicoCategoria)
-                    .Include(t => t.ServicoSubCategoria)
-                    .Where(a => a.DataAgendamento.Date >= dataInicial.Date && a.DataAgendamento.Date <= dataFinal.Date)
-                    .ToListAsync();
+                var agendamentos = await _repository.GetAgendamentosBetweenDatesAsync(dataInicial, dataFinal);
 
                 if (!agendamentos.Any())
                 {
@@ -537,51 +500,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             model.Links.Add(new LinkDto(model.Id, Url.ActionLink(), rel: "update", metodo: "PUT"));
             model.Links.Add(new LinkDto(model.Id, Url.ActionLink(), rel: "delete", metodo: "DELETE"));
 
-        }
-
-
-        //n-n nao se aplica nesse caso. Deixar comentado abaixo para quando for usar
-
-        //// Metodo: Operacao para salvar o usuario que esta linkado ao agendamento na tabela n-n
-        //// associacao do usuario no agendamento
-        //[HttpPost("{id}/usuarios")]
-        //public async Task<ActionResult> AddUsuario(int id, AgendamentoUsuariosDto model)
-        //{
-
-
-        //    // passar o usuario dto ao inves do usuario. essa configuracao garante que a senha tambem sera passada
-        //    AgendamentoUsuarios novoAgendamento = new AgendamentoUsuarios()
-        //    {
-        //        AgendamentoId = model.AgendamentoId,
-        //        Agendamento = model.Agendamento,
-        //        UsuarioId = model.UsuarioId,
-        //        Usuario = model.Usuario
-        //    };
-
-        //    if (novoAgendamento == null || id != novoAgendamento.UsuarioId) return BadRequest(ModelState);
-        //    // passar a camada de dto
-
-        //    _context.AgendamentoUsuarios.Add(novoAgendamento);
-        //    await _context.SaveChangesAsync();
-        //    return CreatedAtAction("GetById", new { id = novoAgendamento.UsuarioId}, novoAgendamento);
-        //}
-
-        //[HttpDelete("{id}/usuarios")]
-        //public async Task<ActionResult> DeleteUsuario(int agendamentoId, int usuarioId)
-        //{
-        //    var model = await _context.AgendamentoUsuarios
-        //        .Where(c => c.AgendamentoId == agendamentoId && c.UsuarioId == usuarioId)
-        //        .FirstOrDefaultAsync();
-
-        //    if (model == null) return NotFound();
-
-        //    _context.AgendamentoUsuarios.Remove(model);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
-
-
-        
+        }        
     }
 }

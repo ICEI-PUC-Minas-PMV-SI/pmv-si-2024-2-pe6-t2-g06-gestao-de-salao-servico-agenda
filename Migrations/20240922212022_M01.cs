@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
 {
     /// <inheritdoc />
-    public partial class M22 : Migration
+    public partial class M01 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -115,7 +115,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                     Href = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Rel = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Metodo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AgendamentoId = table.Column<int>(type: "int", nullable: true)
+                    AgendamentoId = table.Column<int>(type: "int", nullable: true),
+                    ServicoCategoriaId = table.Column<int>(type: "int", nullable: true),
+                    ServicoSubCategoriaId = table.Column<int>(type: "int", nullable: true),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -124,6 +127,21 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                         name: "FK_LinkDto_Agendamentos_AgendamentoId",
                         column: x => x.AgendamentoId,
                         principalTable: "Agendamentos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_LinkDto_ServicoCategorias_ServicoCategoriaId",
+                        column: x => x.ServicoCategoriaId,
+                        principalTable: "ServicoCategorias",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_LinkDto_ServicoSubCategorias_ServicoSubCategoriaId",
+                        column: x => x.ServicoSubCategoriaId,
+                        principalTable: "ServicoSubCategorias",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_LinkDto_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
                         principalColumn: "Id");
                 });
 
@@ -146,6 +164,21 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Migrations
                 name: "IX_LinkDto_AgendamentoId",
                 table: "LinkDto",
                 column: "AgendamentoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LinkDto_ServicoCategoriaId",
+                table: "LinkDto",
+                column: "ServicoCategoriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LinkDto_ServicoSubCategoriaId",
+                table: "LinkDto",
+                column: "ServicoSubCategoriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LinkDto_UsuarioId",
+                table: "LinkDto",
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServicoSubCategorias_ServicoCategoriaId",
