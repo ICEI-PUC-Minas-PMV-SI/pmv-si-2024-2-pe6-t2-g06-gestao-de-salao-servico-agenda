@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities;
-
+// conexao com dbcontext = banco de dados
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositories
 {
     // AgendamentosRepository.cs
@@ -44,39 +44,35 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositor
         {
             _context.Agendamentos.Update(agendamento);
             await _context.SaveChangesAsync();
-        }
+        }        
         public async Task DeleteAgendamentoAsync(Agendamento agendamento)
         {
             _context.Agendamentos.Remove(agendamento);
             await _context.SaveChangesAsync();
         }
-        public async Task<List<Agendamento>> GetAgendamentosByUsuarioOuProfissionalIdAsync(int usuarioId)
+        public async Task<List<Agendamento>> GetAgendamentosByUsuarioIdAsync(int id)
         {
-            // reusando o mesmo metodo para ambos os timpos de usuario: usuario final ou profissional. contem mesma estrutura
             return await _context.Agendamentos
-                .Include(a => a.Usuario)// Inclua detalhes do usuário, se necessário
-                .Include(a => a.ServicoCategoria)
-                .Include(a => a.ServicoSubCategoria)
-                .Where(a => a.UsuarioId == usuarioId)// Filtrar por ID profissional
+                .Where(a => a.UsuarioId == id || a.ProfissionalId == id)
                 .ToListAsync();
         }
-
-        public async Task<List<Agendamento>> GetAgendamentosByDateAsync(DateTime date)
+        public async Task<List<Agendamento>> GetAgendamentosByProfissionalIdAsync(int id)
         {
+            // Change the return type to List<Agendamento>
             return await _context.Agendamentos
-                .Include(a => a.Usuario)
-                .Include(a => a.ServicoCategoria)
-                .Include(a => a.ServicoSubCategoria)
-                .Where(a => a.DataAgendamento.Date == date.Date) // Compare only the date part
+                .Where(a => a.ProfissionalId == id)
                 .ToListAsync();
         }
-        public async Task<List<Agendamento>> GetAgendamentosBetweenDatesAsync(DateTime dataInicial, DateTime dataFinal)
+        public async Task<IEnumerable<Agendamento>> GetAgendamentosByDateAsync(DateTime data)
         {
             return await _context.Agendamentos
-                .Include(a => a.Usuario)
-                .Include(a => a.ServicoCategoria)
-                .Include(a => a.ServicoSubCategoria)
-                .Where(a => a.DataAgendamento.Date >= dataInicial.Date && a.DataAgendamento.Date <= dataFinal.Date)
+                .Where(a => a.DataAgendamento == data.Date) // Considera apenas a data, ignorando a hora
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Agendamento>> GetAgendamentosBetweenDatesAsync(DateTime dataInicial, DateTime dataFinal)
+        {
+            return await _context.Agendamentos
+                .Where(a => a.DataAgendamento >= dataInicial && a.DataAgendamento <= dataFinal)
                 .ToListAsync();
         }
 

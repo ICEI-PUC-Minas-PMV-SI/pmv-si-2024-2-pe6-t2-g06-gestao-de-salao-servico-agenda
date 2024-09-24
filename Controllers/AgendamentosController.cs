@@ -7,6 +7,7 @@ using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositories;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.DTOs;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services;
 using System.Security.Claims;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
@@ -16,11 +17,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
     [ApiController]
     public class AgendamentosController : ControllerBase
     {
-        private readonly IAgendamentosRepository _repository;
+        private readonly IAgendamentoService _agendamentoService;
 
-        public AgendamentosController(IAgendamentosRepository repository)
+        public AgendamentosController(IAgendamentoService agendamentoService)
         {
-            _repository = repository;
+            _agendamentoService = agendamentoService;
         }
 
         /// <summary>
@@ -28,14 +29,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// </summary>
         /// <returns>Uma lista de agendamentos.</returns>
         /// <remarks> Somente Administradores tem permissao para ver todos os agendamentos.</remarks>
-
         [HttpGet]
         [Authorize(Roles = "Administrador")]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAllAgendamentos()
         {
             try
             {
-                var agendamentos = await _repository.GetAllAgendamentosAsync();
+                var agendamentos = await _agendamentoService.GetAllAgendamentosAsync();
                 return Ok(agendamentos);
             }
             catch (Exception ex)
@@ -57,49 +57,34 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Recupera agendamento pelo ID usando o repositorio
-                var model = await _repository.GetAgendamentoByIdAsync(id);
-
-                // Retorna NotFound o agendamento não é encontrado
-                if (model == null)
-                    return NotFound(new { message = "Agendamento não encontrado." });
-
-                // Pega o ID usuario atual e seu perfil pelo token claims
+                // Pega o ID do usuário atual e seu perfil pelo token claims
                 var usuarioAtualId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
 
-                // Checa se o usuario atual é um Administrador
-                if (perfilUsuarioAtual == "Administrador") // Role 1: Administrador
-                {
-                    // Administradores podem acessar qualquer agendamento
-                    GerarLinks(model);
-                    return Ok(model);
-                }
-                else if (perfilUsuarioAtual == "Profissional") // Role 2: Profissional
-                {
-                    // Profissionais podem somente acessar agendamentos relacionados ao seu proprio ID
-                    var profissionalId = int.Parse(usuarioAtualId);
+                // Chama o serviço para obter o agendamento
+                var model = await _agendamentoService.GetAgendamentoByIdAsync(id, usuarioAtualId, perfilUsuarioAtual);
 
-                    // Checa se o profissional pode acessar esse agendamento
-                    if (model.ProfissionalId != profissionalId)
-                    {
-                        return Forbid("Funcao Invalida.");
-                    }
+                // Se o agendamento não for encontrado, retorna NotFound
+                if (model == null)
+                    return NotFound(new { message = "Agendamento não encontrado." });
 
-                    // Se o ID do profissional da match, returna o agendamento
-                    GerarLinks(model);
-                    return Ok(model);
-                }
+                // Adiciona links ou outras operações antes de retornar
+                GerarLinks(model);
 
-                // Se o perfil do usuario é inválido, returna Unauthorized
-                return Unauthorized(new { message = "Você não tem permissão para acessar este agendamento." });
+                return Ok(model);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                // Se o usuário não tiver permissão, retorna 403 com uma mensagem customizada
+                return new ObjectResult(new { message = ex.Message })
+                {
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
             catch (Exception ex)
             {
-                // Loga o erro (log opcional)
-                // _logger.LogError(ex, "Erro ao obter agendamento com id {id}", id);
-
-                // Returna 500 Internal Server Error con detalhes
+                // Loga o erro e retorna 500
                 return StatusCode(500, new { message = "Erro ao obter o agendamento.", details = ex.Message });
             }
         }
@@ -117,49 +102,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                // Chama o service para criar o agendamento
+                var result = await _agendamentoService.CreateAgendamentoAsync(agendamento, User);
+
+                // Se o resultado for um erro de autorização ou dados inválidos, retorna o código adequado
+                if (!result.Sucesso)
                 {
-                    return BadRequest(ModelState);
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
 
-                // Get the current user's ID and role from the token claims
-                var usuarioAtualId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
-
-                // Check if the current user is a regular user (Role 1)
-                if (perfilUsuarioAtual == "Usuario") // Role 1: Usuario
-                {
-                    // Ensure the user can only create an appointment for their own ID
-                    if (agendamento.UsuarioId.ToString() != usuarioAtualId)
-                    {
-                        return new ContentResult
-                        {
-                            StatusCode = 403,
-                            Content = "Você não tem permissao para criar agendamentos para outros usuários."
-                        };
-                    }
-                }
-
-                // If the current user is a Professional (Role 2) or Administrator (Role 3),
-                // they can create appointments for any user, without restriction.
-
-                // Use the repository to add the new agendamento
-                await _repository.CreateAgendamentoAsync(agendamento);
-
-                // Return status created with the newly created resource ID
+                // Retorna status 201 Created com o ID do recurso criado
                 return CreatedAtAction(nameof(GetAgendamentoById), new { id = agendamento.Id }, agendamento);
             }
             catch (Exception ex)
             {
-                // Capture the details of the exception and return a 500 error
-                var exceptionMessage = ex.Message;
-                var innerExceptionMessage = ex.InnerException?.Message;
-
                 return StatusCode(500, new
                 {
                     message = "Ocorreu um erro ao processar a solicitação.",
-                    details = exceptionMessage,
-                    innerDetails = innerExceptionMessage
+                    details = ex.Message
                 });
             }
         }
@@ -172,41 +132,30 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <returns>Se update foi bem sucedido, não retorna nada.</returns>
         /// <remarks> Administradores e Profissionais podem atualizar agendamentos para outros usuarios, mas um usuario final nao pode atualizar agendamento para outro usuario, mas somente para o seu proprio login</remarks>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
+        [Authorize(Roles = "Administrador,Profissional,Usuario")]
         public async Task<ActionResult> UpdateAgendamento(int id, Agendamento model)
         {
-            if (id != model.Id) return BadRequest("O ID do agendamento não corresponde.");
-
             try
             {
-                // Pega o ID do usuario atual e seu perfil pelo token claims
-                var usuarioAtualId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
+                // Chama o service para atualizar o agendamento
+                var result = await _agendamentoService.UpdateAgendamentoAsync(id, model, User);
 
-                // Retorna o agendamento atual
-                var agendamentoExistente = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
-
-                if (agendamentoExistente == null) return NotFound(new { message = "Agendamento não encontrado." });
-
-                // Se o usuario atual é um usuario comum (Role 1), checa se eles estao atualizando o seu proprio agendamento
-                if (perfilUsuarioAtual == "Usuario") // Role 1: Usuario
+                // Se o resultado for um erro de autorização ou dados inválidos, retorna o código adequado
+                if (!result.Sucesso)
                 {
-                    if (agendamentoExistente.UsuarioId.ToString() != usuarioAtualId)
-                    {
-                        return Forbid("Você não pode atualizar agendamentos de outros usuários.");
-                    }
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
 
-                // Atualiza o agendamento com novos detalhes
-                
-                await _repository.UpdateAgendamentoAsync(model);
-
+                // Retorna NoContent em caso de sucesso
                 return NoContent();
             }
             catch (Exception ex)
             {
-                // Log de erro e retorna resposta de erro 500
-                return StatusCode(500, new { message = "Erro ao atualizar o agendamento.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Erro ao atualizar o agendamento.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -222,36 +171,26 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Obtenha o ID e a função do usuário atual nas declarações de token
-                var usuarioAtualId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
+                // Chama o serviço para deletar o agendamento
+                var result = await _agendamentoService.DeleteAgendamentoAsync(id, User);
 
-                // Encontre o agendamento por ID usando o repositório
-                var model = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
-
-                if (model == null) return NotFound();
-
-                // Caso o usuário atual seja um usuário regular (Role 1), ele só poderá excluir seu próprio agendamento
-                if (perfilUsuarioAtual == "Usuario") // Role 1: User
+                // Verifica se houve sucesso ou erro na operação e retorna o código adequado
+                if (!result.Sucesso)
                 {
-                    if (model.UsuarioId.ToString() != usuarioAtualId)
-                    {
-                        return Forbid("Você não pode deletar agendamentos de outros usuários.");
-                    }
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
-
-                // Remove o agendamento usando o repositório
-                await _repository.DeleteAgendamentoAsync(model);
 
                 return NoContent();
             }
             catch (Exception ex)
             {
-                // Registre o erro e retorne uma resposta de erro 500
-                return StatusCode(500, new { message = "Erro ao deletar o agendamento.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Erro ao deletar o agendamento.",
+                    details = ex.Message
+                });
             }
-        }
-        
+        }        
 
         // GET: /api/agendamentos/usuario/{id}
         /// <summary>
@@ -265,56 +204,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Obtém o ID e a função do usuário atual das declarações do token
-                var usuarioAtualId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var perfilUsuarioAtual = User.FindFirst(ClaimTypes.Role)?.Value;
+                // Chama o serviço para obter agendamentos por usuário
+                var result = await _agendamentoService.GetAgendamentosByUsuarioIdAsync(id, User);
 
-                // Verifica as funções e controle de acesso
-                if (perfilUsuarioAtual == "Administrador") // Administrador (Role 1)
+                // Verifica se houve sucesso e retorna a resposta apropriada
+                if (!result.Sucesso)
                 {
-                    // Os administradores podem acessar os agendamentos de qualquer usuário, sem necessidade de restrições
-
-                }
-                else if (perfilUsuarioAtual == "Profissional") // Profissional (Role 2)
-                {
-                    // Profissional só pode acessar agendamentos relacionados ao seu próprio ID (ProfissionalId)
-                    var profissionalId = int.Parse(usuarioAtualId);
-
-                    // Caso o ID do profissional não seja igual ao RG solicitado, proibir o acesso
-                    if (profissionalId != id)
-                    {
-                        return Forbid("Você não tem permissão para acessar agendamentos de outro profissional.");
-                    }
-                }
-                else if (perfilUsuarioAtual == "Usuario") // Usuario (Role 3)
-                {
-                    // Usuario regular só pode acessar seus próprios agendamentos
-                    if (usuarioAtualId != id.ToString())
-                    {
-                        return Forbid("Você não tem permissão para acessar os agendamentos de outro usuário.");
-                    }
-                }
-                else
-                {
-                    return Unauthorized("Função de usuário inválida.");
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
 
-                // Busca os agendamentos para o ID de usuário informado
-                var agendamentos = await _repository.GetAgendamentosByUsuarioOuProfissionalIdAsync(id);
-
-                // Se nenhum agendamento for encontrado, retorna um resultado NotFound
-                if (agendamentos == null || agendamentos.Any()) 
-                {
-                    return NotFound(new { message = "Nenhum agendamento encontrado para este usuário." });
-                }
-
-                // Retorna a lista de agendamentos
-                return Ok(agendamentos);
+                return Ok(result.Agendamentos);
             }
             catch (Exception ex)
             {
-                // Retorna um erro interno do servidor 500 com os detalhes da exceção
-                return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Ocorreu um erro ao obter os agendamentos.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -330,21 +237,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Buscar agendamentos relacionados à carteira profissional especificada
-                var agendamentos = await _repository.GetAgendamentosByUsuarioOuProfissionalIdAsync(id);
+                // Chama o serviço para obter agendamentos por profissional
+                var result = await _agendamentoService.GetAgendamentosByProfissionalIdAsync(id, User);
 
-                // Verifique se algum agendamento foi encontrado
-                if (agendamentos == null || !agendamentos.Any())
+                // Verifica o resultado e retorna a resposta apropriada
+                if (!result.Sucesso)
                 {
-                    return NotFound(new { message = "Nenhum agendamento encontrado para o profissional especificado." });
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
 
-                return Ok(agendamentos);
+                return Ok(result.Agendamentos);
             }
             catch (Exception ex)
             {
-                // Registre o erro e retorne uma resposta de erro 500
-                return StatusCode(500, new { message = "Erro ao obter os agendamentos do profissional.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Erro ao obter os agendamentos do profissional.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -360,32 +270,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Valide o status de entrada
-                if (string.IsNullOrWhiteSpace(novoStatus))
+                // Chama o serviço para atualizar o status do agendamento
+                var result = await _agendamentoService.UpdateAgendamentoStatusAsync(id, novoStatus, User);
+
+                // Verifica o resultado e retorna a resposta apropriada
+                if (!result.Sucesso)
                 {
-                    return BadRequest(new { message = "O status fornecido é inválido." });
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
 
-                // Buscar o agendamento por ID
-                var agendamento = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
-
-                if (agendamento == null)
-                {
-                    return NotFound(new { message = "Agendamento não encontrado." });
-                }
-
-                // Atualizar o status do agendamento
-                agendamento.Status = novoStatus;
-
-                // Marcar a entidade como modificada
-                _repository.UpdateAgendamentoAsync(agendamento);
-
-                return NoContent(); // Retornar 204 Sem conteúdo em atualização bem sucedida
+                return NoContent(); // Retornar 204 Sem conteúdo em atualização bem-sucedida
             }
             catch (Exception ex)
             {
-                // Registre o erro e retorne uma resposta de erro 500
-                return StatusCode(500, new { message = "Erro ao atualizar o status do agendamento.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Erro ao atualizar o status do agendamento.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -400,39 +302,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Defina o status de cancelamento
-                const string cancellationStatus = "Cancelado"; // Altere para qualquer status que indique cancelamento
+                // Chama o serviço para cancelar o agendamento
+                var result = await _agendamentoService.CancelAgendamentoAsync(id, User);
 
-                // Busca o agendamento pelo seu ID
-                var agendamento = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
-                if (agendamento == null)
+                // Verifica o resultado e retorna a resposta apropriada
+                if (!result.Sucesso)
                 {
-                    return NotFound(new { message = "Agendamento não encontrado." });
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
-
-                // Checa se o usuario tem ermissao para cancelar o agendamento
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (User.IsInRole("1")) // Perfil do usuario
-                {
-                    // Certifique-se de que o usuário esteja cancelando apenas seu próprio compromisso
-                    if (int.Parse(userId) != agendamento.UsuarioId)
-                    {
-                        return Forbid(); // O usuário não tem permissão para cancelar este compromisso
-                    }
-                }
-
-                // Atualizar o status para cancelado
-                agendamento.Status = cancellationStatus;
-
-                // Marcar a entidade como modificada
-                _repository.UpdateAgendamentoAsync(agendamento);
 
                 return NoContent(); // Retornar 204 Sem conteúdo em atualização bem-sucedida
             }
             catch (Exception ex)
             {
-                // Registre o erro e retorne uma resposta de erro 500
-                return StatusCode(500, new { message = "Erro ao cancelar o agendamento.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Erro ao cancelar o agendamento.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -447,20 +334,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Buscar agendamentos para a data especificada
-                var agendamentos = await _repository.GetAgendamentosByDateAsync(data);
+                // Chama o serviço para obter os agendamentos por data
+                var result = await _agendamentoService.GetAgendamentosByDateAsync(data);
 
-                if (!agendamentos.Any())
+                // Verifica o resultado e retorna a resposta apropriada
+                if (!result.Sucesso)
                 {
-                    return NotFound(new { message = "Nenhum agendamento encontrado para a data especificada." });
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
 
-                return Ok(agendamentos);
+                return Ok(result.Agendamentos);
             }
             catch (Exception ex)
             {
-                // Registre o erro e retorne uma resposta de erro 500
-                return StatusCode(500, new { message = "Erro ao obter agendamentos para a data especificada.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Erro ao obter agendamentos para a data especificada.",
+                    details = ex.Message
+                });
             }
         }
 
@@ -476,20 +367,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         {
             try
             {
-                // Buscar agendamentos dentro do intervalo de datas especificado
-                var agendamentos = await _repository.GetAgendamentosBetweenDatesAsync(dataInicial, dataFinal);
+                // Chama o serviço para obter os agendamentos entre as datas
+                var result = await _agendamentoService.GetAgendamentosBetweenDatesAsync(dataInicial, dataFinal);
 
-                if (!agendamentos.Any())
+                // Verifica o resultado e retorna a resposta apropriada
+                if (!result.Sucesso)
                 {
-                    return NotFound(new { message = "Nenhum agendamento encontrado para o intervalo de datas especificado." });
+                    return StatusCode(result.StatusCode, result.Mensagem);
                 }
 
-                return Ok(agendamentos);
+                return Ok(result.Agendamentos);
             }
             catch (Exception ex)
             {
-                // Registre o erro e retorne uma resposta de erro 500
-                return StatusCode(500, new { message = "Erro ao obter agendamentos para o intervalo de datas especificado.", details = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Erro ao obter agendamentos para o intervalo de datas especificado.",
+                    details = ex.Message
+                });
             }
         }
 

@@ -11,11 +11,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositor
         Task UpdateAgendamentoAsync(Agendamento agendamento);
         Task DeleteAgendamentoAsync(Agendamento agendamento);
         Task<Agendamento> GetAgendamentoByIdNoTrackingAsync(int agendamentoId); // Recupera para update        
-        Task<List<Agendamento>> GetAgendamentosByUsuarioOuProfissionalIdAsync(int usuarioId);
-        Task<List<Agendamento>> GetAgendamentosByDateAsync(DateTime date);
-        Task<List<Agendamento>> GetAgendamentosBetweenDatesAsync(DateTime dataInicial, DateTime dataFinal);
+        Task<List<Agendamento>> GetAgendamentosByUsuarioIdAsync(int usuarioId);
+        Task<List<Agendamento>> GetAgendamentosByProfissionalIdAsync(int id);
+        Task<IEnumerable<Agendamento>> GetAgendamentosByDateAsync(DateTime data);
+        Task<IEnumerable<Agendamento>> GetAgendamentosBetweenDatesAsync(DateTime dataInicial, DateTime dataFinal);
 
-        // Proposito da Interface:
+        // Proposito da Interface: 
     }
 }
 
