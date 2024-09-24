@@ -8,11 +8,11 @@ using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositories;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.DTOs;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
 {
-    // AgendamentosController.cs
     [Route("api/[controller]")]
     [ApiController]
     public class AgendamentosController : ControllerBase
@@ -25,16 +25,30 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         }
 
         /// <summary>
-        /// Retorna todo os agendamentos do salão.
+        /// Retorna todos os agendamentos do salão de beleza.
+        /// Apenas usuários com papel de Administrador podem acessar.
         /// </summary>
-        /// <returns>Uma lista de agendamentos.</returns>
-        /// <remarks> Somente Administradores tem permissao para ver todos os agendamentos.</remarks>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}`
+        /// - **Content-Type**: application/json
+        /// </remarks>
+        /// /// <response code="200">Lista de agendamentos retornada com sucesso.</response>
+        /// <response code="500">Erro ao buscar os agendamentos.</response>
         [HttpGet]
         [Authorize(Roles = "Administrador")]
+        [SwaggerOperation(
+        Summary = "Obter todos os agendamentos",
+        Description = "Retorna todos os agendamentos. Somente administradores podem acessar.",
+        OperationId = "GetAllAgendamentos"
+        )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista de agendamentos retornada com sucesso", typeof(Agendamento[]))]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao buscar os agendamentos")]
+
         public async Task<ActionResult> GetAllAgendamentos()
         {
             try
             {
+                // Chama o serviço para obter o agendamento
                 var agendamentos = await _agendamentoService.GetAllAgendamentosAsync();
                 return Ok(agendamentos);
             }
@@ -44,15 +58,27 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             }
         }
 
-        // Get a single agendamento by id
         /// <summary>
-        /// Retorna um agendamento pelo seu ID.
+        /// Retorna um agendamento específico pelo seu ID.
+        /// Apenas administradores e profissionais podem acessar.
         /// </summary>
-        /// <param name="id">o ID do agendamento.</param>
-        /// <returns>O agendamento com o ID específico.</returns>
-        /// <remarks> Somente Administradores e Profissionais tem permissao para ver agendamentos pelo Id, porem, profissionais poderao ver somente seus proprios agendamentos.</remarks>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}`
+        /// - **Content-Type**: application/json
+        /// </remarks>
+        /// <param name="id">ID do agendamento</param>
+        /// <response code="200">Agendamento retornado com sucesso.</response>
+        /// <response code="404">Agendamento não encontrado.</response>
+        /// <response code="403">Acesso negado.</response>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Administrador,Profissional")]  // Somente Administradores (Role 1) e profissionaos (Role 2) podem acessar esse método
+        [Authorize(Roles = "Administrador,Profissional")]
+        [SwaggerOperation(
+        Summary = "Obter agendamento por ID",
+        Description = "Retorna um agendamento específico. Somente administradores e profissionais podem acessar.",
+        OperationId = "GetAgendamentoById")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Agendamento retornado com sucesso", typeof(Agendamento))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Agendamento não encontrado")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado")]
         public async Task<ActionResult> GetAgendamentoById(int id)
         {
             try
@@ -89,15 +115,28 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             }
         }
 
-        // Criar um novo agendamento
         /// <summary>
         /// Cria um novo agendamento.
+        /// Administradores, profissionais e usuários podem criar agendamentos.
         /// </summary>
-        /// <param name="agendamento">Os detalhes do agendamento a ser criado.</param>
-        /// <returns>O agendamento Criado.</returns>
-        /// <remarks> Administradores e Profissionais podem criar agendamentos para outros usuarios, mas um usuario final nao pode criar agendamento para outro usuario, mas somente para o seu proprio login</remarks>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}`
+        /// - **Content-Type**: application/json
+        /// </remarks>
+        /// <param name="agendamento">Objeto com os detalhes do novo agendamento</param>
+        /// <response code="201">Agendamento criado com sucesso.</response>
+        /// <response code="400">Dados inválidos.</response>
+        /// <response code="500">Erro ao criar o agendamento.</response>
         [HttpPost]
-        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
+        [Authorize(Roles = "Administrador,Profissional,Usuario")]
+        [SwaggerOperation(
+            Summary = "Criar um novo agendamento",
+            Description = "Cria um novo agendamento. Administradores, profissionais e usuários autenticados podem criar.",
+            OperationId = "CreateAgendamento"
+        )]
+        [SwaggerResponse(StatusCodes.Status201Created, "Agendamento criado com sucesso", typeof(Agendamento))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Dados inválidos")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao criar o agendamento")]
         public async Task<ActionResult> CreateAgendamento([FromBody] Agendamento agendamento)
         {
             try
@@ -125,14 +164,32 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         }
 
         /// <summary>
-        /// Atualiza um agendamento agendamento existente pelo seu ID.
+        /// Atualiza um agendamento existente pelo seu ID.
         /// </summary>
-        /// <param name="id">o ID do agendamento.</param>
-        /// <param name="model">A atualização dos detalhes do agendamento.</param>
-        /// <returns>Se update foi bem sucedido, não retorna nada.</returns>
-        /// <remarks> Administradores e Profissionais podem atualizar agendamentos para outros usuarios, mas um usuario final nao pode atualizar agendamento para outro usuario, mas somente para o seu proprio login</remarks>
+        /// <param name="id">O ID do agendamento.</param>
+        /// <param name="model">Os detalhes do agendamento a serem atualizados.</param>
+        /// <returns>Se a atualização for bem sucedida, retorna NoContent.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// - **Content-Type**: application/json
+        /// - **Regras**: Administradores e profissionais podem atualizar agendamentos para outros usuários, enquanto os usuários finais só podem atualizar seus próprios agendamentos.
+        /// </remarks>
+        /// <response code="204">Agendamento atualizado com sucesso.</response>
+        /// <response code="400">Requisição inválida (dados incorretos ou faltantes).</response>
+        /// <response code="403">Acesso negado (usuário não tem permissão).</response>
+        /// <response code="404">Agendamento não encontrado.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrador,Profissional,Usuario")]
+        [SwaggerOperation(
+            Summary = "Atualiza um agendamento",
+            Description = "Atualiza um agendamento existente. Administradores e profissionais podem atualizar qualquer agendamento, enquanto usuários finais só podem atualizar seus próprios agendamentos."
+        )]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Agendamento atualizado com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Dados inválidos.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Agendamento não encontrado.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> UpdateAgendamento(int id, Agendamento model)
         {
             try
@@ -159,14 +216,29 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             }
         }
 
-        /// <summary>
+        // <summary>
         /// Deleta um agendamento pelo seu ID.
         /// </summary>
         /// <param name="id">O ID do agendamento.</param>
-        /// <returns>Se a ação Delete é bem sucedida, não retorna nada.</returns>
-        /// <remarks> Administradores e Profissionais podem deletar agendamentos para outros usuarios, mas um usuario final nao pode deletar agendamento para outro usuario, mas somente para o seu proprio login</remarks>
+        /// <returns>Se a exclusão for bem sucedida, retorna NoContent.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// - **Regras**: Administradores e profissionais podem deletar agendamentos de qualquer usuário. Usuários finais só podem deletar seus próprios agendamentos.
+        /// </remarks>
+        /// <response code="204">Agendamento deletado com sucesso.</response>
+        /// <response code="403">Acesso negado (usuário não tem permissão).</response>
+        /// <response code="404">Agendamento não encontrado.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permite todos os perfis (1: Usuario, 2: Profissional, 3: Administrador)
+        [Authorize(Roles = "Administrador,Profissional,Usuario")]
+        [SwaggerOperation(
+            Summary = "Deleta um agendamento",
+            Description = "Deleta um agendamento pelo seu ID. Administradores e profissionais podem deletar qualquer agendamento, enquanto usuários finais só podem deletar os seus."
+        )]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Agendamento deletado com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Agendamento não encontrado.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -190,16 +262,30 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                     details = ex.Message
                 });
             }
-        }        
+        }
 
-        // GET: /api/agendamentos/usuario/{id}
         /// <summary>
-        /// Retorna os agendamentos de um usuario pelo seu ID.
+        /// Retorna os agendamentos de um usuário pelo seu ID.
         /// </summary>
-        /// <param name="id">O ID do usuario para filtrar agendamentos.</param>
-        /// <returns>Uma lista de agendamentos para um usuário específico.</returns>
+        /// <param name="id">O ID do usuário.</param>
+        /// <returns>Uma lista de agendamentos do usuário especificado.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// </remarks>
+        /// <response code="200">Agendamentos retornados com sucesso.</response>
+        /// <response code="403">Acesso negado (usuário não tem permissão).</response>
+        /// <response code="404">Nenhum agendamento encontrado para o usuário especificado.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpGet("usuario/{id}")]
-        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Somente usuarios autenticados podem acessar esse methodo
+        [Authorize(Roles = "Administrador,Profissional,Usuario")]
+        [SwaggerOperation(
+            Summary = "Retorna agendamentos por usuário",
+            Description = "Retorna todos os agendamentos de um usuário pelo seu ID. Administradores e profissionais podem acessar agendamentos de qualquer usuário, enquanto usuários finais só podem acessar os seus próprios."
+        )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Agendamentos retornados com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Nenhum agendamento encontrado.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> GetAgendamentoByUsuarioId(int id)
         {
             try
@@ -226,13 +312,28 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         }
 
         /// <summary>
-        /// Recupera agendamentos por identificação profissional.
+        /// Retorna os agendamentos de um profissional pelo seu ID.
         /// </summary>
-        /// <param name="id">A identificação profissional para filtrar agendamentos.</param>
-        /// <returns>Uma lista de agendamentos para o profissional especificado.</returns>
-        /// <remarks> Administradores podem ver agendamentos de um determinado profissional pelo seu id. Profissionais tambem podem ver somente seus proprios agendamentos</remarks>
+        /// <param name="id">O ID do profissional.</param>
+        /// <returns>Uma lista de agendamentos do profissional especificado.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// - **Regras**: Administradores podem acessar os agendamentos de qualquer profissional, enquanto profissionais só podem acessar os seus próprios agendamentos.
+        /// </remarks>
+        /// <response code="200">Agendamentos retornados com sucesso.</response>
+        /// <response code="403">Acesso negado (usuário não tem permissão).</response>
+        /// <response code="404">Nenhum agendamento encontrado para o profissional especificado.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpGet("profissional/{id}")]
-        [Authorize(Roles = "Administrador,Profissional")] // Permitir que profissionais e administradores acessem este endpoint
+        [Authorize(Roles = "Administrador,Profissional")]
+        [SwaggerOperation(
+            Summary = "Retorna agendamentos por profissional",
+            Description = "Retorna todos os agendamentos de um profissional pelo seu ID. Administradores podem ver todos os agendamentos de qualquer profissional, enquanto profissionais só podem ver os seus próprios."
+        )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Agendamentos retornados com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Nenhum agendamento encontrado.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> GetAgendamentoByProfessionalId(int id)
         {
             try
@@ -263,9 +364,27 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// </summary>
         /// <param name="id">O ID do agendamento.</param>
         /// <param name="novoStatus">O novo status a ser aplicado.</param>
-        /// <returns>Nenhum conteúdo se a atualização for bem sucedida.</returns>
+        /// <returns>Retorna NoContent se a atualização for bem sucedida.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// - **Content-Type**: application/json
+        /// </remarks>
+        /// <response code="204">Status do agendamento atualizado com sucesso.</response>
+        /// <response code="400">Requisição inválida.</response>
+        /// <response code="403">Acesso negado.</response>
+        /// <response code="404">Agendamento não encontrado.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpPatch("{id}/status")]
-        [Authorize(Roles = "Administrador,Profissional")] // Permitir que profissionais e administradores atualizem o status
+        [Authorize(Roles = "Administrador,Profissional")]
+        [SwaggerOperation(
+            Summary = "Atualiza o status de um agendamento",
+            Description = "Permite a atualização do status de um agendamento. Administradores e profissionais podem realizar esta ação."
+        )]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Status do agendamento atualizado com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Requisição inválida.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Agendamento não encontrado.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> UpdateAgendamentoStatus(int id, [FromBody] string novoStatus)
         {
             try
@@ -296,8 +415,23 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// </summary>
         /// <param name="id">O ID do agendamento.</param>
         /// <returns>Nenhum conteúdo se o cancelamento for bem sucedido.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// </remarks>
+        /// <response code="204">Agendamento cancelado com sucesso.</response>
+        /// <response code="403">Acesso negado (usuário não tem permissão).</response>
+        /// <response code="404">Agendamento não encontrado.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpPatch("{id}/cancelar")]
-        [Authorize(Roles = "Administrador,Profissional,Usuario")] // Permitir que usuários (para seus próprios compromissos), profissionais e administradores cancelem compromissos
+        [Authorize(Roles = "Administrador,Profissional,Usuario")]
+        [SwaggerOperation(
+            Summary = "Cancela um agendamento",
+            Description = "Permite cancelar um agendamento. Usuários podem cancelar seus próprios compromissos, enquanto administradores e profissionais podem cancelar qualquer compromisso."
+        )]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Agendamento cancelado com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Agendamento não encontrado.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> CancelAgendamento(int id)
         {
             try
@@ -328,8 +462,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// </summary>
         /// <param name="data">A data para filtrar agendamentos.</param>
         /// <returns>Uma lista de agendamentos para a data especificada.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// - **Regras**: Administradores e profissionais podem visualizar agendamentos de uma data específica.
+        /// </remarks>
+        /// <response code="200">Agendamentos retornados com sucesso.</response>
+        /// <response code="403">Acesso negado (usuário não tem permissão).</response>
+        /// <response code="404">Nenhum agendamento encontrado para a data especificada.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpGet("by-date/{data}")]
-        [Authorize(Roles = "Administrador,Profissional")] //Permitir que profissionais e administradores acessem este endpoint
+        [Authorize(Roles = "Administrador,Profissional")]
+        [SwaggerOperation(
+            Summary = "Recupera agendamentos por data",
+            Description = "Retorna todos os agendamentos para uma data específica. Apenas administradores e profissionais têm permissão para acessar este endpoint."
+        )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Agendamentos retornados com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Nenhum agendamento encontrado para a data especificada.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> GetAgendamentoByDate(DateTime data)
         {
             try
@@ -361,8 +511,24 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <param name="dataInicial">A data de início do intervalo.</param>
         /// <param name="dataFinal">A data de término do intervalo.</param>
         /// <returns>Uma lista de agendamentos dentro do intervalo de datas especificado.</returns>
+        /// <remarks>
+        /// - **Authorization**: JWT Token no formato `Bearer {token}` é necessário
+        /// - **Regras**: Apenas administradores e profissionais podem acessar agendamentos entre um intervalo de datas.
+        /// </remarks>
+        /// <response code="200">Agendamentos retornados com sucesso.</response>
+        /// <response code="403">Acesso negado (usuário não tem permissão).</response>
+        /// <response code="404">Nenhum agendamento encontrado dentro do intervalo especificado.</response>
+        /// <response code="500">Erro ao processar a solicitação.</response>
         [HttpGet("between-dates")]
-        [Authorize(Roles = "Administrador,Profissional")] // Permitir que profissionais e administradores acessem este endpoint
+        [Authorize(Roles = "Administrador,Profissional")]
+        [SwaggerOperation(
+            Summary = "Recupera agendamentos entre datas",
+            Description = "Retorna todos os agendamentos que ocorreram dentro de um intervalo de datas. Apenas administradores e profissionais podem acessar esta informação."
+        )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Agendamentos retornados com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Acesso negado.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Nenhum agendamento encontrado dentro do intervalo especificado.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.")]
         public async Task<ActionResult> GetBetweenDates([FromQuery] DateTime dataInicial, [FromQuery] DateTime dataFinal)
         {
             try
@@ -389,6 +555,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         }
 
         // passando as rotas para cada verbo
+        /// <summary>
+        /// Gera os links relevantes para um agendamento específico.
+        /// </summary>
+        /// <param name="model">O modelo de agendamento para o qual os links serão gerados.</param>
+        /// <remarks>
+        /// - Gera links para as operações de leitura, atualização e exclusão.
+        /// </remarks>
         private void GerarLinks(Agendamento model)
         {
             model.Links.Add(new LinkDto(model.Id, Url.ActionLink(), rel: "self", metodo: "GET"));
