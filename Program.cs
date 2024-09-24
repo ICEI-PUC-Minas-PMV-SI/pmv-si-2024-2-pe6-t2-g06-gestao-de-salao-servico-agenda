@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositories;
+using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -19,8 +20,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // In Program.cs or Startup.cs
+            // Register the repository
             builder.Services.AddScoped<IAgendamentosRepository, AgendamentosRepository>();
+
+            // Register the service
+            builder.Services.AddScoped<IAgendamentoService, AgendamentosService>();
 
             // Add services to the container.
 

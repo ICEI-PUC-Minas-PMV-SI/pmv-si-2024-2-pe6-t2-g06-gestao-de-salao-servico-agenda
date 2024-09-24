@@ -22,6 +22,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositor
         {
             return await _context.Agendamentos
                 .Include(a => a.Usuario)
+                .Include(a => a.Profissional)
                 .Include(a => a.ServicoCategoria)
                 .Include(a => a.ServicoSubCategoria)
                 .ToListAsync();
@@ -31,6 +32,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositor
         {
             return await _context.Agendamentos
                 .Include(a => a.Usuario)
+                .Include(a => a.Profissional)   
                 .Include(a => a.ServicoCategoria)
                 .Include(a => a.ServicoSubCategoria)
                 .FirstOrDefaultAsync(a => a.Id == agendamentoId);

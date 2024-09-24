@@ -28,8 +28,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
                 throw new Exception("Erro ao obter os agendamentos", ex);
             }
         }
-
-        //
         public async Task<Agendamento> GetAgendamentoByIdAsync(int id, string usuarioAtualId, string perfilUsuarioAtual)
         {
             try
