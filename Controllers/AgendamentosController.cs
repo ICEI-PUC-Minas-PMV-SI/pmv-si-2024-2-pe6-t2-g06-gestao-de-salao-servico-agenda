@@ -137,12 +137,26 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         [SwaggerResponse(StatusCodes.Status201Created, "Agendamento criado com sucesso", typeof(Agendamento))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Dados inválidos")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao criar o agendamento")]
-        public async Task<ActionResult> CreateAgendamento([FromBody] Agendamento agendamento)
+        public async Task<ActionResult> CreateAgendamento([FromBody] AgendamentoDto agendamento)
         {
             try
             {
+                // passar o usuario dto ao inves do usuario. essa configuracao garante que a senha tambem sera passada
+                Agendamento novoAgendamento = new Agendamento()
+                {
+                    DataAgendamento = agendamento.DataAgendamento,
+                    HoraAgendamento = agendamento.HoraAgendamento,
+                    Status = agendamento.Status,
+                    Observacoes = agendamento.Observacoes,
+                    ServicoCategoriaId = agendamento.ServicoCategoriaId,
+                    ServicoSubCategoriaId = agendamento.ServicoSubCategoriaId,
+                    ProfissionalId = agendamento.ProfissionalId,
+                    UsuarioId = agendamento.UsuarioId                    
+
+                };
+
                 // Chama o service para criar o agendamento
-                var result = await _agendamentoService.CreateAgendamentoAsync(agendamento, User);
+                var result = await _agendamentoService.CreateAgendamentoAsync(novoAgendamento, User);
 
                 // Se o resultado for um erro de autorização ou dados inválidos, retorna o código adequado
                 if (!result.Sucesso)
@@ -151,7 +165,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 }
 
                 // Retorna status 201 Created com o ID do recurso criado
-                return CreatedAtAction(nameof(GetAgendamentoById), new { id = agendamento.Id }, agendamento);
+                return CreatedAtAction(nameof(GetAgendamentoById), new { id = novoAgendamento.Id }, novoAgendamento);
             }
             catch (Exception ex)
             {
