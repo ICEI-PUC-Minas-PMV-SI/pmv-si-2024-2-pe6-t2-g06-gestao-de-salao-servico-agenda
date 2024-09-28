@@ -70,7 +70,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"usuarioId\": 14,\r\n  \"senha\": \"123\"\r\n}\r\n\r\n\r\n\r\n// TESTE NO MEU BANCO LOCAL - A MESMA SENHA PRA FICAR MAIS FACIL\r\n// ADMINISTRATOR\r\n// {\r\n//   \"usuarioId\": 14,\r\n//   \"senha\": \"123\"\r\n// }\r\n\r\n// PROFISSIONAL\r\n// {\r\n//   \"usuarioId\": 10, // 11, 15\r\n//   \"senha\": \"123\"\r\n// }\r\n\r\n// USUARIO FINAL\r\n// {\r\n//   \"usuarioId\": 13, //12 , 9\r\n//   \"senha\": \"123\"\r\n// }",
+					"raw": "// TESTE NO MEU BANCO LOCAL - A MESMA SENHA PRA FICAR MAIS FACIL\r\n// ADMINISTRATOR\r\n// {\r\n//   \"usuarioId\": 14,\r\n//   \"senha\": \"123\"\r\n// }\r\n\r\n// PROFISSIONAL\r\n{\r\n  \"usuarioId\": 11, //10, 11, 15\r\n  \"senha\": \"123\"\r\n}\r\n\r\n// USUARIO FINAL\r\n// {\r\n//   \"usuarioId\": 13, //12 ,13 , 9\r\n//   \"senha\": \"123\"\r\n// }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -78,12 +78,11 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}/gateway/Usuarios/authentication",
+					"raw": "{{BASE_URL_GATEWAY}}/Usuarios/authentication",
 					"host": [
 						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
-						"gateway",
 						"Usuarios",
 						"authentication"
 					]
@@ -111,7 +110,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -120,7 +119,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"id\": 0,\r\n  \"dataAgendamento\": \"2024-09-25\",\r\n  \"horaAgendamento\": \"12:00:00\",\r\n  \"status\": \"Pendente\",\r\n  \"observacoes\": \"aaa\",\r\n  \"servicoCategoriaId\": 1,\r\n  \"servicoSubCategoriaId\": 2,\r\n  \"profissionalId\": 11,\r\n  \"usuarioId\": 9\r\n  \r\n}\r\n\r\n// [Authorize(Roles = \"Administrador,Profissional,Usuario\")] ",
+					"raw": "{\r\n  \"id\": 0,\r\n  \"dataAgendamento\": \"2024-09-25\",\r\n  \"horaAgendamento\": \"12:00:00\",\r\n  \"status\": \"Pendente\",\r\n  \"observacoes\": \"Agendamento pelo profissional\",\r\n  \"servicoCategoriaId\": 1,\r\n  \"servicoSubCategoriaId\": 2,\r\n  \"profissionalId\": 11,\r\n  \"usuarioId\": 9\r\n  \r\n}\r\n\r\n// [Authorize(Roles = \"Administrador,Profissional,Usuario\")] ",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -221,7 +220,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -238,13 +237,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/16",
+					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/19",
 					"host": [
 						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
 						"Agendamentos",
-						"16"
+						"19"
 					]
 				},
 				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
@@ -274,7 +273,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -283,7 +282,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "// [Authorize(Roles = \"Administrador,Profissional,Usuario\")] \r\n\r\n{\r\n  \"id\": 12,\r\n  \"dataAgendamento\": \"2024-09-26\",\r\n  \"horaAgendamento\": \"17:00:00\",\r\n  \"status\": \"Pendente\",\r\n  \"observacoes\": \"test updates\",\r\n  \"servicoCategoriaId\": 1,\r\n  \"servicoSubCategoriaId\": 3,\r\n  \"profissionalId\": 11,\r\n  \"usuarioId\": 9\r\n  \r\n}",
+					"raw": "// [Authorize(Roles = \"Administrador,Profissional,Usuario\")] \r\n\r\n{\r\n  \"id\": 19,\r\n  \"dataAgendamento\": \"2024-09-26\",\r\n  \"horaAgendamento\": \"19:00:00\",\r\n  \"status\": \"Confirmado\",\r\n  \"observacoes\": \"Pedido de cancelamento por telefone\",\r\n  \"servicoCategoriaId\": 1,\r\n  \"servicoSubCategoriaId\": 3,\r\n  \"profissionalId\": 11,\r\n  \"usuarioId\": 9  \r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -291,13 +290,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/12",
+					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/19",
 					"host": [
 						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
 						"Agendamentos",
-						"12"
+						"19"
 					]
 				},
 				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
@@ -327,7 +326,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -344,13 +343,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/12",
+					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/19",
 					"host": [
 						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
 						"Agendamentos",
-						"12"
+						"19"
 					]
 				},
 				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
@@ -383,7 +382,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -400,14 +399,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/usuario/9",
+					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/usuario/12",
 					"host": [
 						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
 						"Agendamentos",
 						"usuario",
-						"9"
+						"12"
 					]
 				},
 				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
@@ -440,7 +439,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -457,14 +456,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/profissional/11",
+					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/profissional/12",
 					"host": [
 						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
 						"Agendamentos",
 						"profissional",
-						"11"
+						"12"
 					]
 				},
 				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
@@ -504,7 +503,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -513,7 +512,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "// [Authorize(Roles = \"Administrador,Profissional\")] \r\n\r\n\"Cancelado\"  \r\n",
+					"raw": "// [Authorize(Roles = \"Administrador,Profissional\")] \r\n\r\n\"Confirmadoaaa\"  \r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -521,13 +520,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/12/status",
+					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/19/status",
 					"host": [
 						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
 						"Agendamentos",
-						"12",
+						"19",
 						"status"
 					]
 				},
@@ -558,7 +557,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MTg5NDkwLCJleHAiOjE3MjcyMTgyOTAsImlhdCI6MTcyNzE4OTQ5MH0.3CzGeHvIg70WUT4y3XMsZmHPBCZ4c9d28WvC7tToxlI",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -575,12 +574,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL_GATEWAY}}Agendamentos/12/cancelar",
+					"raw": "{{BASE_URL_GATEWAY}}/Agendamentos/19/cancelar",
 					"host": [
-						"{{BASE_URL_GATEWAY}}Agendamentos"
+						"{{BASE_URL_GATEWAY}}"
 					],
 					"path": [
-						"12",
+						"Agendamentos",
+						"19",
 						"cancelar"
 					]
 				},
@@ -614,7 +614,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MjkwNjE2LCJleHAiOjE3MjczMTk0MTYsImlhdCI6MTcyNzI5MDYxNn0.ZVEgbhCb9c32kZUQiFEb-cdTO_A2l8C5TYrJUQyd0Cg",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -671,7 +671,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNCIsInJvbGUiOiJBZG1pbmlzdHJhZG9yIiwibmJmIjoxNzI3MTg5NDkwLCJleHAiOjE3MjcyMTgyOTAsImlhdCI6MTcyNzE4OTQ5MH0.3CzGeHvIg70WUT4y3XMsZmHPBCZ4c9d28WvC7tToxlI",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
