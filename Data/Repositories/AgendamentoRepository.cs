@@ -21,15 +21,29 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositor
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == agendamentoId);
         }
-        public async Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync()
+
+        // Implementação para obter agendamentos paginados
+        public async Task<List<Agendamento>> GetPagedAgendamentosAsync(int skip, int take)
         {
             return await _context.Agendamentos
                 .Include(a => a.Usuario)
                 .Include(a => a.Profissional)
                 .Include(a => a.ServicoCategoria)
                 .Include(a => a.ServicoSubCategoria)
+                .Skip(skip) 
+                .Take(take)
                 .ToListAsync();
         }
+
+        //public async Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync()
+        //{
+        //    return await _context.Agendamentos
+        //        .Include(a => a.Usuario)
+        //        .Include(a => a.Profissional)
+        //        .Include(a => a.ServicoCategoria)
+        //        .Include(a => a.ServicoSubCategoria)
+        //        .ToListAsync();
+        //}
 
         public async Task<Agendamento> GetAgendamentoByIdAsync(int agendamentoId)
         {

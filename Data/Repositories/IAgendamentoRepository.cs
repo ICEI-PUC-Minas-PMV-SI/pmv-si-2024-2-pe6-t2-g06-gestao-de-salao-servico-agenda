@@ -5,7 +5,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositor
     // IAgendamentosRepository.cs
     public interface IAgendamentosRepository
     {
-        Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync();
+        // Método para obter agendamentos paginados
+        Task<List<Agendamento>> GetPagedAgendamentosAsync(int skip, int take);
+
+        // Método para obter o número total de agendamentos
+        //Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync();
         Task<Agendamento> GetAgendamentoByIdAsync(int agendamentoId);
         Task CreateAgendamentoAsync(Agendamento agendamento);
         Task UpdateAgendamentoAsync(Agendamento agendamento);

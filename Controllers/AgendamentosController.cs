@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// <response code="500">Erro ao buscar os agendamentos.</response>
         [HttpGet]
         [Authorize(Roles = "Administrador")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         [SwaggerOperation(
         Summary = "Obter todos os agendamentos",
         Description = "Retorna todos os agendamentos. Somente administradores podem acessar.",
@@ -44,12 +46,18 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de agendamentos retornada com sucesso", typeof(Agendamento[]))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro ao buscar os agendamentos")]
 
+        // Método GetAllAgendamentos sem parâmetros de paginação no request
         public async Task<ActionResult> GetAllAgendamentos()
         {
             try
             {
-                // Chama o serviço para obter o agendamento
-                var agendamentos = await _agendamentoService.GetAllAgendamentosAsync();
+                // Define valores fixos de paginação
+                int pageNumber = 1;
+                int pageSize = 10;
+
+                // Obtém os agendamentos usando o serviço
+                var agendamentos = await _agendamentoService.GetAllAgendamentosAsync(pageNumber, pageSize);
+
                 return Ok(agendamentos);
             }
             catch (Exception ex)
@@ -57,6 +65,22 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
             }
         }
+
+        // metodo para getall sem paginacao
+
+        //public async Task<ActionResult> GetAllAgendamentos()
+        //{
+        //    try
+        //    {
+        //        // Chama o serviço para obter o agendamento
+        //        var agendamentos = await _agendamentoService.GetAllAgendamentosAsync();
+        //        return Ok(agendamentos);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
+        //    }
+        //}
 
         /// <summary>
         /// Retorna um agendamento específico pelo seu ID.

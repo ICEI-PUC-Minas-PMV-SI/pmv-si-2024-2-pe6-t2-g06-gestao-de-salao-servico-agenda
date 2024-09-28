@@ -5,7 +5,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
 {
     public interface IAgendamentoService
     {
-        Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync();
+        Task<List<Agendamento>> GetAllAgendamentosAsync(int pageNumber, int pageSize);
+        //Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync();
         Task<Agendamento> GetAgendamentoByIdAsync(int id, string usuarioAtualId, string perfilUsuarioAtual);
         Task<(bool Sucesso, string Mensagem, int StatusCode)> CreateAgendamentoAsync(Agendamento agendamento, ClaimsPrincipal usuarioAtual);
         Task<(bool Sucesso, string Mensagem, int StatusCode)> UpdateAgendamentoAsync(int id, Agendamento agendamento, ClaimsPrincipal usuarioAtual);

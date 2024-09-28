@@ -16,18 +16,29 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
             _repository = repository;
         }
 
-        public async Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync()
+        // Implementação para obter os agendamentos paginados
+        public async Task<List<Agendamento>> GetAllAgendamentosAsync(int pageNumber, int pageSize)
         {
-            try
-            {
-                return await _repository.GetAllAgendamentosAsync();
-            }
-            catch (Exception ex)
-            {
-                // Optionally, log the exception
-                throw new Exception("Erro ao obter os agendamentos", ex);
-            }
+            // Calcular o número de itens a serem ignorados
+            int skip = (pageNumber - 1) * pageSize;
+
+            // Chama o repositório para obter os agendamentos paginados
+            var agendamentos = await _repository.GetPagedAgendamentosAsync(skip, pageSize);
+
+            return agendamentos;
         }
+        //public async Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync()
+        //{
+        //    try
+        //    {
+        //        return await _repository.GetAllAgendamentosAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Optionally, log the exception
+        //        throw new Exception("Erro ao obter os agendamentos", ex);
+        //    }
+        //}
         public async Task<Agendamento> GetAgendamentoByIdAsync(int id, string usuarioAtualId, string perfilUsuarioAtual)
         {
             try
