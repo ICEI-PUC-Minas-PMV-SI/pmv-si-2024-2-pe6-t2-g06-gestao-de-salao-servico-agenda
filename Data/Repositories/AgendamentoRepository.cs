@@ -84,25 +84,41 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data.Repositor
         public async Task<List<Agendamento>> GetAgendamentosByUsuarioIdAsync(int id)
         {
             return await _context.Agendamentos
-                .Where(a => a.UsuarioId == id || a.ProfissionalId == id)
+                .Include(a => a.Usuario)
+                .Include(a => a.Profissional)
+                .Include(a => a.ServicoCategoria)
+                .Include(a => a.ServicoSubCategoria)
+                .Where(a => a.UsuarioId == id)
                 .ToListAsync();
         }
         public async Task<List<Agendamento>> GetAgendamentosByProfissionalIdAsync(int id)
         {
             // Change the return type to List<Agendamento>
             return await _context.Agendamentos
+                .Include(a => a.Usuario)
+                .Include(a => a.Profissional)
+                .Include(a => a.ServicoCategoria)
+                .Include(a => a.ServicoSubCategoria)
                 .Where(a => a.ProfissionalId == id)
                 .ToListAsync();
         }
         public async Task<IEnumerable<Agendamento>> GetAgendamentosByDateAsync(DateTime data)
         {
             return await _context.Agendamentos
+                .Include(a => a.Usuario)
+                .Include(a => a.Profissional)
+                .Include(a => a.ServicoCategoria)
+                .Include(a => a.ServicoSubCategoria)
                 .Where(a => a.DataAgendamento == data.Date) // Considera apenas a data, ignorando a hora
                 .ToListAsync();
         }
         public async Task<IEnumerable<Agendamento>> GetAgendamentosBetweenDatesAsync(DateTime dataInicial, DateTime dataFinal)
         {
             return await _context.Agendamentos
+                .Include(a => a.Usuario)
+                .Include(a => a.Profissional)
+                .Include(a => a.ServicoCategoria)
+                .Include(a => a.ServicoSubCategoria)
                 .Where(a => a.DataAgendamento >= dataInicial && a.DataAgendamento <= dataFinal)
                 .ToListAsync();
         }

@@ -27,18 +27,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
 
             return agendamentos;
         }
-        //public async Task<IEnumerable<Agendamento>> GetAllAgendamentosAsync()
-        //{
-        //    try
-        //    {
-        //        return await _repository.GetAllAgendamentosAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Optionally, log the exception
-        //        throw new Exception("Erro ao obter os agendamentos", ex);
-        //    }
-        //}
         public async Task<Agendamento> GetAgendamentoByIdAsync(int id, string usuarioAtualId, string perfilUsuarioAtual)
         {
             try
@@ -64,7 +52,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
 
                     if (agendamento.ProfissionalId != profissionalId)
                     {
-                        throw new UnauthorizedAccessException("Função inválida: Profissional não autorizado.");
+                        throw new UnauthorizedAccessException("Função inválida: Profissional não autorizado. Este agendamento nao esta na sua agenda.");
                     }
 
                     return agendamento;
@@ -146,6 +134,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
                     return (false, "Você não pode atualizar agendamentos de outros usuários.", 403); // Forbidden
                 }
             }
+            else if(usuarioAtualId != agendamentoExistente.ProfissionalId.ToString())
+            {
+                return (false, "Você não tem permissão para atualizar agendamentos de outro profissional.", 403);
+            }
 
             // Atualiza o agendamento
             try
@@ -182,6 +174,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
                     return (false, "Você não pode deletar agendamentos de outros usuários.", 403); // Forbidden
                 }
             }
+            else if (usuarioAtualId != agendamento.ProfissionalId.ToString())
+            {
+                return (false, "Você não tem permissão para deletar agendamentos de outro profissional.", 403);
+            }
 
             // Tenta remover o agendamento
             try
@@ -200,6 +196,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
             var usuarioAtualId = usuarioAtual.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var perfilUsuarioAtual = usuarioAtual.FindFirst(ClaimTypes.Role)?.Value;
 
+            var agendamentos = await _repository.GetAgendamentosByUsuarioIdAsync(id);
+
             // Verifica permissões de acordo com o perfil do usuário
             if (perfilUsuarioAtual == "Administrador")
             {
@@ -207,13 +205,13 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
             }
             else if (perfilUsuarioAtual == "Profissional")
             {
-                var profissionalId = int.Parse(usuarioAtualId);
-
-                if (profissionalId != id)
-                {
-                    return (false, "Você não tem permissão para acessar agendamentos de outro profissional.", 403, null);
-                }
+                // Profissional só pode deletar seus próprios agendamentos
+                //if (usuarioAtualId != agendamentoProfissional)
+                //{
+                //    return (false, "Você não tem permissão para deletar agendamentos de outro profissional.", 403, null); // Forbidden
+                //}
             }
+            
             else if (perfilUsuarioAtual == "Usuario")
             {
                 if (usuarioAtualId != id.ToString())
@@ -226,8 +224,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
                 return (false, "Função de usuário inválida.", 401, null); // Unauthorized
             }
 
-            // Busca os agendamentos para o usuário ou profissional
-            var agendamentos = await _repository.GetAgendamentosByUsuarioIdAsync(id);
+            // Busca os agendamentos para o usuário ou profissional            
 
             if (agendamentos == null || !agendamentos.Any())
             {
@@ -278,6 +275,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
 
             // Busca o agendamento por ID
             var agendamento = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
+            var usuarioAtualId = usuarioAtual.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (agendamento == null)
             {
@@ -291,6 +289,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
             if (perfilUsuarioAtual != "Administrador" && perfilUsuarioAtual != "Profissional")
             {
                 return (false, "Você não tem permissão para atualizar o status do agendamento.", 403); // Forbidden
+            }
+
+            else if (usuarioAtualId != agendamento.ProfissionalId.ToString())
+            {
+                return (false, "Você não tem permissão para atualizar agendamentos de outro profissional.", 403);
             }
 
             // Atualiza o status do agendamento
@@ -309,22 +312,28 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
             // Busca o agendamento por ID
             var agendamento = await _repository.GetAgendamentoByIdNoTrackingAsync(id);
 
+            var usuarioAtualId = usuarioAtual.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             if (agendamento == null)
             {
                 return (false, "Agendamento não encontrado.", 404); // Not Found
             }
 
-            var userId = usuarioAtual.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            else if (usuarioAtualId != agendamento.ProfissionalId.ToString())
+            {
+                return (false, "Você não tem permissão para cancelar agendamentos de outro profissional.", 403);
+            }
 
             // Verifica se o usuário atual é um "Usuario" (Role 1)
             if (usuarioAtual.IsInRole("Usuario")) // Role 1: Usuario
             {
                 // Verifica se o usuário está cancelando seu próprio compromisso
-                if (int.Parse(userId) != agendamento.UsuarioId)
+                if (int.Parse(usuarioAtualId) != agendamento.UsuarioId)
                 {
                     return (false, "Você não tem permissão para cancelar este compromisso.", 403); // Forbidden
                 }
             }
+
 
             // Atualiza o status para cancelado
             agendamento.Status = cancellationStatus;
@@ -338,6 +347,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
         {
             // Busca os agendamentos para a data especificada
             var agendamentos = await _repository.GetAgendamentosByDateAsync(data);
+
 
             if (!agendamentos.Any())
             {
