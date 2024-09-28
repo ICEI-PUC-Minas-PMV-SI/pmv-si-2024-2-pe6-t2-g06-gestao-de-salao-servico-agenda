@@ -1,5 +1,15 @@
 {
   "profiles": {
+    //configuracao do api gateway
+    "pmv-si-2024-2-pe6-t2-g06-gestao-de-salao-servico-agenda": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "http": {
       "commandName": "Project",
       "launchBrowser": true,

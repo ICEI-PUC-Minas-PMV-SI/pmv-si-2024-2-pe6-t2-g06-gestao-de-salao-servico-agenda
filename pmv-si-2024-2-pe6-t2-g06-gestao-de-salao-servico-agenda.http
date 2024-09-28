@@ -1,6 +1,0 @@
-@pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda_HostAddress = http://localhost:5056
-
-GET {{pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
