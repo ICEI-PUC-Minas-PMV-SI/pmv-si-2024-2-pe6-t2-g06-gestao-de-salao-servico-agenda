@@ -1,6 +1,6 @@
 {
   "profiles": {
-    //configuracao do api gateway
+    //configuracao do api gateway - 
     "pmv-si-2024-2-pe6-t2-g06-gestao-de-salao-servico-agenda": {
       "commandName": "Project",
       "dotnetRunMessages": true,
