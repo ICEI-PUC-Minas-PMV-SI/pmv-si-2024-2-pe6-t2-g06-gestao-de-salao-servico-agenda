@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entities;
 
@@ -48,6 +49,12 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.DTOs
         public GeneroTipo? Genero { get; set; }
         [Required]
         public Perfil Perfil { get; set; }
+
+        // Foreign key to Salão
+        [ForeignKey("Cnpj")] // Specify the navigation property here
+        public string Cnpj { get; set; }
+
+        public virtual Salao Salao { get; set; } // Navigation property
 
         //public List<LinkDto> Links { get; set; } = new List<LinkDto>();
     }

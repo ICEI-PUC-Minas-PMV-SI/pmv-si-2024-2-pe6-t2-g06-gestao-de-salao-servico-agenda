@@ -135,22 +135,4 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda
             app.Run();
         }
     }
-
-
-
-
-
-    // passos: 
-    // 1 - Criar o modelo onde vamos configurar quais os campos queremos acessar em cada entidade
-    // 2 - Criar o DbContext, para fazer o acesso ao banco de dados
-    // 3 - Criar a connectionString em appsetings.json
-    // 4 - Adicionar o builder para o banco de dados no Program.cs
-    // 5 - gerar migracoes para criacao das tabelas no banco:
-        // add-migration M00 --- para dar um build nos arquivos de migracao para serem usados para criar tabela no banco
-        // Remove-Migration -- remove os arquivos de migracao
-        // update-database - comando para criar a tabela no banco
-    // Criar o controller para definicao do endpoint
-    // Caso queira ignorar campos do modelo no json, criar Data Transfer Objects (dto)
-    // Caso precise de uma tabela de relacionamentos n-n, configurar um modelo especifico somente para chaves
-    // Configurar o project.cs para authenticacao >> devo tambem nos controladores explicitamente falar que a rota tem que ser "Authorize"
 }

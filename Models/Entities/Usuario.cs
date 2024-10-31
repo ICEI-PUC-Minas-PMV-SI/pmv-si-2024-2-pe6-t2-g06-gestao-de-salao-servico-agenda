@@ -27,6 +27,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entitie
         //// O campo Id é herdado de BaseEntity e o JsonPropertyOrder com define sua posição no JSON
         //[JsonPropertyOrder(1)]
         //public new int Id { get; set; }  // Reescrevendo para garantir a ordem no JSON
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
         [Key]
         [Required]
         [ScaffoldColumn(false)]
@@ -34,11 +38,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entitie
 
         [Required]
         [MaxLength(100)]
-        public string Nome { get; set; }
-
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        public string Nome { get; set; }        
 
         [Required]
         [JsonIgnore]
@@ -80,6 +80,11 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Models.Entitie
         //public ICollection<Agendamento> Agendamentos { get; set; }
 
         //public List<LinkDto> Links { get; set; } = new List<LinkDto>();
+        // Foreign key to Salão
+        [ForeignKey("Cnpj")] // Specify the navigation property here
+        public string Cnpj { get; set; }
+
+        public virtual Salao Salao { get; set; } // Navigation property
 
     }
 

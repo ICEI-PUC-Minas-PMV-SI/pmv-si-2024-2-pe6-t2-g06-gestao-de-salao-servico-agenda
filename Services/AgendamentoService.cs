@@ -214,10 +214,10 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
             
             else if (perfilUsuarioAtual == "Usuario")
             {
-                if (usuarioAtualId != id.ToString())
-                {
-                    return (false, "Você não tem permissão para acessar os agendamentos de outro usuário.", 403, null);
-                }
+                //if (usuarioAtualId != id.ToString())
+                //{
+                //    return (false, "Você não tem permissão para acessar os agendamentos de outro usuário.", 403, null);
+                //}
             }
             else
             {
@@ -319,20 +319,20 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Services
                 return (false, "Agendamento não encontrado.", 404); // Not Found
             }
 
-            else if (usuarioAtualId != agendamento.ProfissionalId.ToString())
+            else if (usuarioAtual.IsInRole("Profissional") && usuarioAtualId != agendamento.ProfissionalId.ToString())
             {
                 return (false, "Você não tem permissão para cancelar agendamentos de outro profissional.", 403);
             }
 
             // Verifica se o usuário atual é um "Usuario" (Role 1)
-            if (usuarioAtual.IsInRole("Usuario")) // Role 1: Usuario
-            {
-                // Verifica se o usuário está cancelando seu próprio compromisso
-                if (int.Parse(usuarioAtualId) != agendamento.UsuarioId)
-                {
-                    return (false, "Você não tem permissão para cancelar este compromisso.", 403); // Forbidden
-                }
-            }
+            //if (usuarioAtual.IsInRole("Usuario")) // Role 1: Usuario
+            //{
+            //    // Verifica se o usuário está cancelando seu próprio compromisso
+            //    if (int.Parse(usuarioAtualId) != agendamento.UsuarioId)
+            //    {
+            //        return (false, "Você não tem permissão para cancelar este compromisso.", 403); // Forbidden
+            //    }
+            //}
 
 
             // Atualiza o status para cancelado

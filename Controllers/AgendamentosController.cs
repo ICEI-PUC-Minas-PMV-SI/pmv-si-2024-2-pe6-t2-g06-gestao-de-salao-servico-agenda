@@ -36,7 +36,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         /// /// <response code="200">Lista de agendamentos retornada com sucesso.</response>
         /// <response code="500">Erro ao buscar os agendamentos.</response>
         [HttpGet]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Profissional,Usuario")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         [SwaggerOperation(
         Summary = "Obter todos os agendamentos",
@@ -65,22 +65,6 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
             }
         }
-
-        // metodo para getall sem paginacao
-
-        //public async Task<ActionResult> GetAllAgendamentos()
-        //{
-        //    try
-        //    {
-        //        // Chama o serviço para obter o agendamento
-        //        var agendamentos = await _agendamentoService.GetAllAgendamentosAsync();
-        //        return Ok(agendamentos);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { message = "Ocorreu um erro ao obter os agendamentos.", details = ex.Message });
-        //    }
-        //}
 
         /// <summary>
         /// Retorna um agendamento específico pelo seu ID.
@@ -119,7 +103,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                     return NotFound(new { message = "Agendamento não encontrado." });
 
                 // Adiciona links ou outras operações antes de retornar
-                GerarLinks(model);
+                // GerarLinks(model);
 
                 return Ok(model);
             }

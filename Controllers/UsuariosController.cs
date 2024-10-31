@@ -67,7 +67,8 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
                 Cep = usuario.Cep,
                 DataNascimento = usuario.DataNascimento,
                 Genero = usuario.Genero,
-                Perfil = usuario.Perfil
+                Perfil = usuario.Perfil,
+                Cnpj = usuario.Cnpj,
             };
 
             // passar a camada de dto
@@ -97,6 +98,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
             modeloDb.DataNascimento = usuario.DataNascimento;
             modeloDb.Genero = usuario.Genero;
             modeloDb.Perfil = usuario.Perfil;
+            modeloDb.Cnpj = usuario.Cnpj;
 
             _context.Usuarios.Update(modeloDb);
 
@@ -144,14 +146,18 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
         [HttpPost("authentication")]
         public async Task<ActionResult> Authenticate(AuthenticateDto model)
         {
-            var modelUsuarioDb = await _context.Usuarios.FindAsync(model.UsuarioId);
+            var modelUsuarioDb = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == model.Email);
 
-            if (modelUsuarioDb == null || !BCrypt.Net.BCrypt.Verify(model.Senha, modelUsuarioDb.Senha))
+
+            if (modelUsuarioDb == null || model.Email != modelUsuarioDb.Email || !BCrypt.Net.BCrypt.Verify(model.Senha, modelUsuarioDb.Senha))
                 return Unauthorized();
 
             var jwt = GenerateJwtToken(modelUsuarioDb);
-
-            return Ok(new { jwtToken = jwt });
+            return Ok(new
+            {
+                jwtToken = jwt,                
+                userId = modelUsuarioDb.Id 
+            });
         }
 
         private string GenerateJwtToken(Usuario model)
@@ -161,7 +167,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Controllers
 
             var claims = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.NameIdentifier, model.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, model.Nome.ToString()),
                 new Claim(ClaimTypes.Role, model.Perfil.ToString())
             });
 

@@ -1,0 +1,24 @@
+[
+  {
+    "Id": 1,
+    "DataAgendamento": "2024-10-01T00:00:00",
+    "HoraAgendamento": "12:00",
+    "Status": "Agendado",
+    "Observacoes": "Teste",
+    "ServicoCategoriaId": 1,
+    "ServicoSubCategoriaId": 1,
+    "ProfissionalId": 1,
+    "UsuarioId": 1
+  },
+  {
+    "Id": 2,
+    "DataAgendamento": "2024-10-02T00:00:00",
+    "HoraAgendamento": "14:00",
+    "Status": "Agendado",
+    "Observacoes": "Teste 2",
+    "ServicoCategoriaId": 1,
+    "ServicoSubCategoriaId": 1,
+    "ProfissionalId": 2,
+    "UsuarioId": 2
+  }
+]

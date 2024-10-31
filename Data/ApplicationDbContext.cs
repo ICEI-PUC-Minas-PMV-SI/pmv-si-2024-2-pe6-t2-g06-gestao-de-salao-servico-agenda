@@ -46,6 +46,7 @@ namespace pmv_si_2024_2_pe6_t2_g06_gestao_de_salao_servico_agenda.Data
         }
 
         public DbSet<Agendamento> Agendamentos { get; set; }
+        public DbSet<Salao> Saloes { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<ServicoCategoria> ServicoCategorias { get; set; }
         public DbSet<ServicoSubCategoria> ServicoSubCategorias { get; set; }
